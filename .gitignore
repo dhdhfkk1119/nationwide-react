@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# 모듈 깃 제거
+.node_modules
+
 # vercel
 .vercel
 
