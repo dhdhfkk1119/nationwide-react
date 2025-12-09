@@ -1,0 +1,21 @@
+.logo {
+  line-height: 1;
+}
+
+@media (min-width: 1200px) {
+  .logo {
+    width: 280px;
+  }
+}
+
+.logo img {
+  width: auto;
+  max-height: 26px;
+  margin-right: 6px;
+}
+
+.logo span {
+  font-size: 13px;
+  font-weight: 700px;
+  font-family: "Nunito", sans-serif;
+}

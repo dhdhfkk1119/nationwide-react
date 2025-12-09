@@ -1,0 +1,11 @@
+.footer {
+  padding: 20px 0;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid black;
+  border-bottom: 0; /* 위 border 제거 */
+  border-radius: 16px 16px 0 0 ; /* 아래만 둥글게 */
+
+  box-shadow: 2px 0px 6px rgba(0, 0, 0, 0.15); /* 그림자 */
+  margin-top: auto;      /* 페이지 아래로 밀착 */
+}
