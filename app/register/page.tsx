@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import memberApi from "@/service/api"; // 경로를 services/member로 수정했다고 가정
 import "@/app/styles/registerpage.css";
+import SubmitButton from "../components/ui/SubmitButton";
 
 export default function RegisterPage() {
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState(false);
-  const [emailCheckMsg, setEmailCheckMsg] = useState("");
+  const [isEmailSent, setIsEmailSent] = useState(false); // 이메일 보내기
+  const [isEmailValid, setIsEmailValid] = useState(false); // 이메일 중복확인
+  const [isEmailCodeVerified, setIsEmailCodeVerified] = useState(false); // 이메일 인증코드 확인
+  const [emailCheckMsg, setEmailCheckMsg] = useState(""); // 이메일 중복확인 메시지
 
   const [form, setForm] = useState({
     name: "",
@@ -24,14 +26,72 @@ export default function RegisterPage() {
     code: "",
   });
 
+  const PasswordChecked = form.password === form.rePassword; // 비밀번호 일치 여부
+
+  const isAllFilled =
+    form.name &&
+    form.nickName &&
+    form.loginId &&
+    form.password &&
+    form.rePassword &&
+    form.phoneNumber &&
+    form.gender &&
+    form.birthFull &&
+    form.addressNumber &&
+    form.address &&
+    form.addressDetail &&
+    form.code;
+
+  const isFormReady =
+    isEmailSent &&
+    isEmailValid &&
+    isEmailCodeVerified &&
+    PasswordChecked &&
+    isAllFilled;
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "phoneNumber") {
+      setForm({
+        ...form,
+        phoneNumber: formatPhoneNumber(value),
+      });
+    } else {
+      setForm({
+        ...form,
+        [name]: value,
+      });
+    }
+  };
+
+  const isValidEmailFormat = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const formatPhoneNumber = (value) => {
+    // 숫자만 남기기
+    const onlyNums = value.replace(/[^0-9]/g, "").slice(0, 11);
+
+    if (onlyNums.length < 4) return onlyNums;
+    if (onlyNums.length < 7)
+      return `${onlyNums.slice(0, 3)}-${onlyNums.slice(3)}`;
+    return `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 7)}-${onlyNums.slice(
+      7
+    )}`;
   };
 
   const handleEmailCheck = async () => {
     if (!form.loginId) {
       setIsEmailValid(false);
       setEmailCheckMsg("이메일을 입력해주세요.");
+      return;
+    }
+
+    if (!isValidEmailFormat(form.loginId)) {
+      setIsEmailValid(false);
+      setEmailCheckMsg("올바른 이메일 형식이 아닙니다.");
       return;
     }
 
@@ -83,28 +143,31 @@ export default function RegisterPage() {
     }
   };
 
-  const handleCodeVerift = async () => {
+  const handleCodeVerify = async () => {
     if (!form.code) {
       alert("이메일을 먼저 입력해주세요.");
       return;
     }
 
     try {
-      const res = await memberApi.veriftCode(form.loginId, form.code);
-      alert("인증이 완료되었습니다");
+      await memberApi.veriftCode(form.loginId, form.code);
+      setIsEmailCodeVerified(true);
+      alert("인증 되었습니다!");
     } catch (error) {
+      setIsEmailCodeVerified(false);
       console.error(error);
-      alert("인증 실패" + form.code);
+      alert("인증 코드가 올바르지 않습니다.");
     }
   };
 
   useEffect(() => {
     if (form.code.length === 6) {
-      handleCodeVerift();
+      handleCodeVerify();
     }
   }, [form.code]);
 
   const onSubmit = (e) => {
+    console.log("onSubmit called : " + JSON.stringify(form));
     e.preventDefault();
 
     // 생년월일을 birthFull → birth + date로 분리
@@ -193,9 +256,10 @@ export default function RegisterPage() {
             <button
               className="btn btn-outline-secondary"
               type="button"
-              onClick={handleCodeVerift}
+              onClick={handleCodeVerify}
+              disabled={isEmailCodeVerified}
             >
-              확인
+              {isEmailCodeVerified ? "인증완료" : "확인"}
             </button>
           </div>
 
@@ -221,6 +285,7 @@ export default function RegisterPage() {
             type="text"
             name="phoneNumber"
             placeholder="전화번호"
+            value={form.phoneNumber}
             onChange={handleChange}
           />
 
@@ -288,9 +353,11 @@ export default function RegisterPage() {
           </div>
 
           {/* 제출 */}
-          <button className="btn btn-primary w-100" type="submit">
-            회원가입
-          </button>
+          <SubmitButton
+            text="회원가입"
+            disabled={!isFormReady}
+            to="/terms" // 약관 페이지
+          />
         </form>
       </div>
     </div>

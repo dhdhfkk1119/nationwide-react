@@ -1,6 +1,4 @@
-import Image from "next/image";
 import Link from "next/link";
-import profile from "@/public/assets/profile.png";
 
 export default function UserInfo() {
   return (

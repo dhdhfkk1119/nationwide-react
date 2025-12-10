@@ -1,8 +1,7 @@
 import axios from "axios";
 
-// Axios 인스턴스 생성
 const http = axios.create({
-  baseURL: "http://localhost:8080/api/", // 스프링 서버 주소
+  baseURL: process.env.NEXT_PUBLIC_API_URL, // 환경변수로 변경
   headers: {
     "Content-Type": "application/json",
   },

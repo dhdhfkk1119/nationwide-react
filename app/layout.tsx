@@ -20,6 +20,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
+      <head>
+        <script
+          src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          defer
+        ></script>
+      </head>
       <body>
         <div className="App">
           {/* 1. Header는 모든 페이지 상단에 고정 */}
