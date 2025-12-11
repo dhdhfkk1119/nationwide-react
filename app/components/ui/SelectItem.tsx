@@ -14,7 +14,7 @@ export default function SelectItem({
   return (
     <label className="d-flex align-items-center gap-2 cursor-pointer">
       <input type="checkbox" checked={checked} onChange={onChange} />
-      {label}
+      <span className="fw-bold fs-5">{label}</span>
     </label>
   );
 }

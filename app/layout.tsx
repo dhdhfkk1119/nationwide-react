@@ -2,6 +2,7 @@ import "@/app/styles/normalize.css";
 import "@/app/styles/app.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import Main from "@/app/components/Main";
