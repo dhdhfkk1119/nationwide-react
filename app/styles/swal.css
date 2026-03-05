@@ -1,0 +1,14 @@
+.swal-bootstrap {
+  border-radius: 12px;
+  padding: 24px;
+  font-family: inherit;
+}
+
+.swal2-title {
+  font-size: 1.25rem;
+}
+
+.swal2-html-container {
+  font-size: 0.95rem;
+  color: #555;
+}

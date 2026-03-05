@@ -2,27 +2,41 @@
 
 import { useEffect, useState } from "react";
 import memberApi from "@/service/api"; // 경로를 services/member로 수정했다고 가정
+import { useRegister } from "@/app/providers/RegisterProvider";
+import { SaveDTO } from "@/service/generated";
 import "@/app/styles/registerpage.css";
 import SubmitButton from "../components/ui/SubmitButton";
+import { formatPhoneNumber, isValidEmail } from "../utils/format/UtilFormat";
+import { useRouter } from "next/navigation";
+import BaseCard from "../components/util_card/BaseCard";
+import showSwal from "../components/modal/Swal";
+import { Messages } from "../constants/Messages";
 
 export default function RegisterPage() {
   const [isEmailSent, setIsEmailSent] = useState(false); // 이메일 보내기
   const [isEmailValid, setIsEmailValid] = useState(false); // 이메일 중복확인
   const [isEmailCodeVerified, setIsEmailCodeVerified] = useState(false); // 이메일 인증코드 확인
   const [emailCheckMsg, setEmailCheckMsg] = useState(""); // 이메일 중복확인 메시지
+  const { updateRegisterData } = useRegister();
+  const router = useRouter();
 
-  const [form, setForm] = useState({
+  type RegisterForm = SaveDTO & {
+    birthFull: string;
+    code: string;
+  };
+
+  const [form, setForm] = useState<RegisterForm>({
     name: "",
     nickName: "",
     loginId: "",
     password: "",
     rePassword: "",
     phoneNumber: "",
-    gender: "",
-    birthFull: "",
+    gender: undefined,
     addressNumber: "",
     address: "",
     addressDetail: "",
+    birthFull: "",
     code: "",
   });
 
@@ -65,23 +79,6 @@ export default function RegisterPage() {
     }
   };
 
-  const isValidEmailFormat = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const formatPhoneNumber = (value) => {
-    // 숫자만 남기기
-    const onlyNums = value.replace(/[^0-9]/g, "").slice(0, 11);
-
-    if (onlyNums.length < 4) return onlyNums;
-    if (onlyNums.length < 7)
-      return `${onlyNums.slice(0, 3)}-${onlyNums.slice(3)}`;
-    return `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 7)}-${onlyNums.slice(
-      7
-    )}`;
-  };
-
   const handleEmailCheck = async () => {
     if (!form.loginId) {
       setIsEmailValid(false);
@@ -89,7 +86,7 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!isValidEmailFormat(form.loginId)) {
+    if (!isValidEmail(form.loginId)) {
       setIsEmailValid(false);
       setEmailCheckMsg("올바른 이메일 형식이 아닙니다.");
       return;
@@ -126,37 +123,37 @@ export default function RegisterPage() {
   };
 
   const handleSendEmail = async () => {
-    if (!form.loginId) return alert("이메일을 입력해주세요!");
+    if (!form.loginId) return showSwal("warning", Messages.EMAIL_REQUIRED);
 
     try {
       if (isEmailSent) {
         await memberApi.reEmailSend(form.loginId);
-        alert("인증 코드가 재전송되었습니다!");
+        showSwal("success", Messages.RESEND_EMAIL_CODE);
       } else {
         await memberApi.emailSend(form.loginId);
-        alert("인증 코드가 전송되었습니다!");
+        showSwal("success", Messages.SEND_EMAIL_CODE);
         setIsEmailSent(true);
       }
     } catch (err) {
       console.error(err);
-      alert("전송에 실패했습니다.");
+      showSwal("error", Messages.ERROR_MESSAGE);
     }
   };
 
   const handleCodeVerify = async () => {
     if (!form.code) {
-      alert("이메일을 먼저 입력해주세요.");
+      showSwal("warning", Messages.EMAIL_REQUIRED);
       return;
     }
 
     try {
       await memberApi.veriftCode(form.loginId, form.code);
       setIsEmailCodeVerified(true);
-      alert("인증 되었습니다!");
+      showSwal("success", Messages.EMAIL_CODE_CONFIRM);
     } catch (error) {
       setIsEmailCodeVerified(false);
       console.error(error);
-      alert("인증 코드가 올바르지 않습니다.");
+      showSwal("warning", Messages.EMAIL_CODE_DENY);
     }
   };
 
@@ -166,28 +163,26 @@ export default function RegisterPage() {
     }
   }, [form.code]);
 
-  const onSubmit = (e) => {
-    console.log("onSubmit called : " + JSON.stringify(form));
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("회원가입 페이지 폼", SaveDTO);
 
-    // 생년월일을 birthFull → birth + date로 분리
-    if (form.birthFull.length === 8) {
-      const birth = form.birthFull.substring(0, 4);
-      const date = form.birthFull.substring(4, 8);
+    const saveData: SaveDTO = {
+      ...form,
+      birth: form.birthFull.slice(0, 4),
+      date: form.birthFull.slice(4, 8),
+    };
 
-      console.log("birth:", birth);
-      console.log("date:", date);
-    }
+    delete (saveData as any).birthFull;
+    delete (saveData as any).code;
 
-    console.log("form:", form);
+    updateRegisterData(saveData);
+    router.push("/register/terms");
   };
 
   return (
-    <div className="RegisterPage d-flex justify-content-center mt-4">
-      <div
-        className="register-page p-4 shadow rounded"
-        style={{ width: "420px", background: "#fff" }}
-      >
+    <div className="d-flex justify-content-center mt-4">
+      <BaseCard className="register-card">
         <h3 className="text-center mb-4">회원가입</h3>
 
         <form onSubmit={onSubmit}>
@@ -251,6 +246,7 @@ export default function RegisterPage() {
               placeholder="인증 코드 입력"
               value={form.code}
               onChange={handleChange}
+              disabled={!isEmailSent}
             />
 
             <button
@@ -353,13 +349,9 @@ export default function RegisterPage() {
           </div>
 
           {/* 제출 */}
-          <SubmitButton
-            text="회원가입"
-            disabled={!isFormReady}
-            to="/terms" // 약관 페이지
-          />
+          <SubmitButton text="다음" disabled={!isFormReady} type="submit" />
         </form>
-      </div>
+      </BaseCard>
     </div>
   );
 }

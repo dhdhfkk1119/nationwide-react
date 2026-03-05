@@ -2,12 +2,11 @@
 
 interface ModalProps {
   show: boolean;
-  title?: string;
-  children?: any;
+  modalData?: any;
   onClose: () => void;
 }
 
-export default function Modal({ show, title, children, onClose }: ModalProps) {
+export default function Modal({ show, modalData, onClose }: ModalProps) {
   if (!show) return null;
 
   return (
@@ -18,12 +17,12 @@ export default function Modal({ show, title, children, onClose }: ModalProps) {
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">{title}</h5>
+            <h5 className="modal-title">{modalData.title}</h5>
             <button className="btn-close" onClick={onClose}></button>
           </div>
 
           <div className="modal-body" style={{ whiteSpace: "pre-line" }}>
-            {children}
+            {modalData.content}
           </div>
 
           <div className="modal-footer">

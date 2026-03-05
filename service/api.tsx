@@ -1,13 +1,16 @@
+import { LoginDTO, SaveDTO } from "./generated";
 import http from "./http";
 
 const Api = {
   // 회원가입 / 인증 API
-  register: (data: any) => http.post("member/save", data),
+  register: (data: SaveDTO) => http.post("member/save", data),
   checkEmail: (email: any) => http.get(`member/check-email/${email}`),
   emailSend: (data: any) => http.post("emails/send", { loginId: data }),
   reEmailSend: (data: any) => http.post("emails/resend", { loginId: data }),
   veriftCode: (loginId: any, code: any) =>
     http.post("emails/verify", { loginId, code }),
+  login: (data: LoginDTO) => http.post("member/login", data), // 로그인 JJWT 발급
+  me: () => http.get("member/me"),
 
   // 약관 API
   getTemrList: () => http.get("terms/list"),

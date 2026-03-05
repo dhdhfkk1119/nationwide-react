@@ -24,6 +24,7 @@ a {
 .userInfo {
   display: flex;
   gap: 10px;
+  align-items: center;
 }
 .user {
   display: flex;
@@ -46,4 +47,19 @@ a {
     font-size: 15px;
     padding: 6px 10px;
   }
+}
+
+/* 공통 Card 컴포넌트 */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.auth-card {
+  width: 420px;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
