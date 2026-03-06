@@ -1,14 +1,28 @@
 .swal-bootstrap {
-  border-radius: 12px;
+  border: 1px solid #e8e0ef;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
+  box-shadow: 0 10px 24px rgba(24, 16, 38, 0.16);
   padding: 24px;
-  font-family: inherit;
 }
 
-.swal2-title {
-  font-size: 1.25rem;
+.swal-title {
+  color: #2d2437;
+  font-size: 22px;
+  font-weight: 800;
 }
 
-.swal2-html-container {
-  font-size: 0.95rem;
-  color: #555;
+.swal-text {
+  color: #5f556d;
+  font-size: 14px;
+}
+
+.swal-confirm-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
+  color: #fff;
+  padding: 10px 14px;
+  font-weight: 700;
 }

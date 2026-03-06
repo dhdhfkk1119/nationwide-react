@@ -1,33 +1,68 @@
-.register-form input,
-.register-form select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-}
-
-.register-form button {
-  width: 100%;
-  padding: 12px;
-  background: #444;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  border: none;
-}
 .register-page {
   display: flex;
-  flex-direction: column; /* 세로 방향 */
+  flex-direction: column;
   gap: 20px;
-}
-.register-btn:disabled {
-  background-color: #ccc !important; /* 회색 */
-  border-color: #ccc !important;
-  cursor: not-allowed !important; /* 마우스 금지 표시 */
-  opacity: 0.7;
 }
 
 .register-card {
-  width: 420px;
+  width: 460px;
+  border: 1px solid #e5dfec;
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
+  box-shadow: 0 8px 20px rgba(24, 16, 38, 0.08) !important;
+}
+
+.register-card h3 {
+  color: #2f2539;
+  font-weight: 800;
+}
+
+.register-card .form-control,
+.register-card .form-select {
+  border: 1px solid #e6e0ee;
+  border-radius: 10px;
+  min-height: 44px;
+}
+
+.register-card .form-control:focus,
+.register-card .form-select:focus {
+  border-color: #ff8a73;
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 60, 0.16);
+}
+
+.register-card .btn {
+  border-radius: 10px;
+  min-height: 42px;
+}
+
+.register-card .btn-outline-primary {
+  border-color: #ff6e50;
+  color: #ff5a3c;
+}
+
+.register-card .btn-outline-primary:hover {
+  background: #ff6e50;
+  border-color: #ff6e50;
+}
+
+.register-card .btn-outline-success {
+  border-color: #ffb7a5;
+  color: #c34e2a;
+}
+
+.register-card .btn-outline-success:hover {
+  background: #ffe6de;
+  border-color: #ffb7a5;
+  color: #a13e21;
+}
+
+.register-card .btn-outline-secondary:hover {
+  background: #f4eef8;
+}
+
+.register-btn:disabled {
+  background-color: #ccc !important;
+  border-color: #ccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
 }

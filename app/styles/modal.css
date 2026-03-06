@@ -1,0 +1,39 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 14, 30, 0.55);
+  padding: 12px;
+}
+
+.custom-modal-content {
+  border: 1px solid #e6deee;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
+}
+
+.custom-modal-header {
+  border-bottom: 1px solid #efe8f5;
+}
+
+.custom-modal-body {
+  white-space: pre-line;
+  color: #3f364b;
+}
+
+.custom-modal-footer {
+  border-top: 1px solid #efe8f5;
+}
+
+.custom-modal-close-btn {
+  border: 0;
+  background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
+  color: #fff;
+  border-radius: 10px;
+  min-width: 92px;
+  font-weight: 700;
+}

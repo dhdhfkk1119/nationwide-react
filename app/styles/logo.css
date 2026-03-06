@@ -4,12 +4,13 @@
 
 .logo img {
   width: auto;
-  max-height: 26px;
-  margin-right: 6px;
+  max-height: 28px;
+  margin-right: 8px;
 }
 
 .logo span {
-  font-size: 13px;
-  font-weight: 700px;
-  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #2b1f38;
 }

@@ -1,11 +1,29 @@
 .footer {
-  padding: 20px 0;
-  text-align: center;
-  font-size: 14px;
-  border: 1px solid black;
-  border-bottom: 0; /* 위 border 제거 */
-  border-radius: 16px 16px 0 0 ; /* 아래만 둥글게 */
+  margin-top: auto;
+  border: 1px solid #e3ddea;
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, #fff9f4 0%, #ffffff 100%);
+  box-shadow: 0 -2px 12px rgba(33, 21, 45, 0.07);
+  padding: 16px 10px;
+}
 
-  box-shadow: 2px 0px 6px rgba(0, 0, 0, 0.15); /* 그림자 */
-  margin-top: auto;      /* 페이지 아래로 밀착 */
+.footer-content {
+  text-align: left;
+  color: #3c3348;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.footer-content p {
+  margin: 0;
+}
+
+.footer-content p + p {
+  margin-top: 4px;
+}
+
+.footer-content a {
+  color: #ff5a3c !important;
+  font-weight: 600;
 }

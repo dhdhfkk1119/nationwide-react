@@ -12,15 +12,13 @@ export default function showSwal(
     icon: type,
     title,
     text: message,
-
     confirmButtonText: "확인",
-
     customClass: {
       popup: "swal-bootstrap",
-      confirmButton: "btn btn-primary w-100",
-      cancelButton: "btn btn-outline-secondary w-100",
+      title: "swal-title",
+      htmlContainer: "swal-text",
+      confirmButton: "swal-confirm-btn",
     },
-
     buttonsStyling: false,
   });
 }

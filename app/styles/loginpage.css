@@ -1,3 +1,40 @@
 .login-card {
   width: 420px;
+  border: 1px solid #e5dfec;
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
+  box-shadow: 0 8px 20px rgba(24, 16, 38, 0.08) !important;
+}
+
+.login-card h3 {
+  color: #2f2539;
+  font-weight: 800;
+}
+
+.login-card .form-control {
+  border: 1px solid #e6e0ee;
+  border-radius: 10px;
+  min-height: 44px;
+}
+
+.login-card .form-control:focus {
+  border-color: #ff8a73;
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 60, 0.16);
+}
+
+.login-card .form-check-label {
+  color: #5f556d;
+  font-size: 13px;
+}
+
+.login-card .btn-primary {
+  border: 0;
+  background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
+  border-radius: 10px;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.login-card .btn-primary:hover {
+  filter: brightness(0.96);
 }
