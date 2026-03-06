@@ -8,6 +8,7 @@ type SortType = "latest" | "views" | "likes";
 interface FeedPost {
   id: number;
   author: string;
+  profileImage: string;
   distance: string;
   text: string;
   likes: number;
@@ -45,6 +46,7 @@ const samplePosts: FeedPost[] = [
   {
     id: 1,
     author: "다온",
+    profileImage: "/assets/profile.png",
     distance: "0.8km",
     text: "오늘 저녁에 같이 산책하실 분 있나요? 한강 쪽으로 가요.",
     likes: 28,
@@ -55,6 +57,7 @@ const samplePosts: FeedPost[] = [
   {
     id: 2,
     author: "하린",
+    profileImage: "/assets/profile.png",
     distance: "1.1km",
     text: "동네 새로 생긴 브런치 카페 다녀왔는데 분위기 좋아요.",
     likes: 42,
@@ -65,6 +68,7 @@ const samplePosts: FeedPost[] = [
   {
     id: 3,
     author: "시우",
+    profileImage: "/assets/profile.png",
     distance: "2.4km",
     text: "주말에 전시회 보러 갈 사람 구해요. 관심 있으면 DM 주세요.",
     likes: 17,
@@ -75,6 +79,7 @@ const samplePosts: FeedPost[] = [
   {
     id: 4,
     author: "지안",
+    profileImage: "/assets/profile.png",
     distance: "0.5km",
     text: "퇴근하고 가볍게 운동 같이 할 분 찾습니다.",
     likes: 35,
@@ -85,6 +90,7 @@ const samplePosts: FeedPost[] = [
   {
     id: 5,
     author: "유진",
+    profileImage: "/assets/profile.png",
     distance: "1.9km",
     text: "반려견 산책 모임 만들어볼까 해요. 관심 있으면 댓글 부탁해요.",
     likes: 51,
@@ -117,9 +123,7 @@ export default function Main() {
     };
 
     document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
   const filteredPosts = useMemo(() => {
@@ -143,18 +147,6 @@ export default function Main() {
 
   return (
     <section className="main-page">
-      {/*
-        Feed API Spec (예시)
-        Endpoint: GET /api/posts/feed?page=0&size=20&query={query}&sort={latest|views|likes}
-        Response: {
-          "response": {
-            "content": [{ "id": 1, "author": "string", "distanceKm": 1.2, "content": "string", "likeCount": 0, "commentCount": 0, "viewCount": 0, "createdAt": "2026-03-06T10:00:00" }],
-            "page": 0,
-            "size": 20,
-            "hasNext": true
-          }
-        }
-      */}
       <aside className="main-sidebar" aria-label="main menu">
         <div className="sidebar-title">커뮤니티 메뉴</div>
         <nav>
@@ -169,6 +161,10 @@ export default function Main() {
             ))}
           </ul>
         </nav>
+        <button className="sidebar-write-btn" type="button">
+          <i className="bi bi-pencil-square"></i>
+          <span>게시글 쓰기</span>
+        </button>
       </aside>
 
       <div className="feed-area">
@@ -235,9 +231,19 @@ export default function Main() {
           {filteredPosts.map((post) => (
             <article key={post.id} className="feed-card">
               <div className="feed-card-header">
-                <div className="feed-author">
-                  <strong>{post.author}</strong>
-                  <span>{post.distance}</span>
+                <div className="feed-author-block">
+                  <div className="feed-author-row">
+                    <img
+                      src={post.profileImage}
+                      alt={`${post.author} profile`}
+                      className="feed-profile-image"
+                    />
+                    <strong className="feed-author-name">{post.author}</strong>
+                    <button className="follow-plus-btn" type="button">
+                      +
+                    </button>
+                  </div>
+                  <span className="feed-distance">{post.distance}</span>
                 </div>
 
                 <details className="post-menu">
