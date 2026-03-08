@@ -6,7 +6,8 @@ import memberApi from "@/service/api";
 interface User {
   id: number;
   name: string;
-  profileImage?: string;
+  thumbnailProfileImagePath: string;
+  profileImagePath: string[];
 }
 
 interface AuthContextType {

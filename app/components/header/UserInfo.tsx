@@ -10,7 +10,9 @@ export default function UserInfo() {
 
   const getProfileImageUrl = (profileImage?: string) => {
     if (!profileImage) {
-      return "/images/default-profile.png";
+      return (
+        process.env.NEXT_PUBLIC_IMAGE_URL + "uploads/member-images/profile.png"
+      );
     }
 
     // 이미 전체 URL인 경우 (http:// 또는 https://로 시작)
@@ -37,17 +39,13 @@ export default function UserInfo() {
         <div className="user">
           <Link href="/mypage" className="d-flex align-items-center">
             <img
-              src={getProfileImageUrl(user.profileImage)}
+              src={getProfileImageUrl(user.profileImagePath?.[0])}
               alt="profile"
               width={30}
               style={{
                 paddingRight: "5px",
                 borderRadius: "50%",
                 objectFit: "cover",
-              }}
-              onError={(e) => {
-                console.error("이미지 로드 실패:", e.currentTarget.src);
-                e.currentTarget.src = "/images/default-profile.png";
               }}
             />
             <span>{user.name} 님</span>

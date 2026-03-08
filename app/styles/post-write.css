@@ -1,0 +1,239 @@
+﻿.post-write-wrap {
+  border: 1px solid #e8e4ef;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 18px 16px;
+}
+
+.post-write-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1d1526;
+}
+
+.post-write-header p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #6f6a77;
+}
+
+.post-write-form {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.post-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-field label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2f2638;
+}
+
+.post-field input[type="text"],
+.post-field textarea,
+.post-field input[type="file"] {
+  border: 1px solid #e4deeb;
+  border-radius: 12px;
+  background: #fff;
+  color: #2f2638;
+  font-size: 14px;
+}
+
+.post-field input[type="text"],
+.post-field textarea {
+  padding: 12px;
+}
+
+.post-field textarea {
+  resize: vertical;
+}
+
+.post-field input[type="text"]:focus,
+.post-field textarea:focus,
+.post-field input[type="file"]:focus {
+  outline: 0;
+  border-color: #ff8a73;
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 60, 0.14);
+}
+
+.post-field input[type="file"] {
+  padding: 8px;
+  background: transparent;
+}
+
+.post-field input[type="file"]::file-selector-button {
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  background: transparent;
+  color: #111;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.post-field input[type="file"]::-webkit-file-upload-button {
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  background: transparent;
+  color: #111;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.post-field input[type="file"]::file-selector-button:hover,
+.post-field input[type="file"]::-webkit-file-upload-button:hover {
+  background: transparent;
+}
+
+.post-image-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-image-head span {
+  font-size: 12px;
+  color: #7a7485;
+}
+
+.image-slider {
+  border: 1px solid #ece7f2;
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px;
+}
+
+.write-image-strip-mask {
+  width: 100%;
+  max-width: 710px;
+  overflow: hidden;
+}
+
+.write-image-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.write-image-strip.is-dragging {
+  cursor: grabbing;
+}
+
+.write-image-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.write-image-item {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.write-image {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border: 1px solid #ece7f2;
+  border-radius: 12px;
+}
+
+.write-image-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.write-image-controls {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.write-image-controls button {
+  border: 1px solid #f0ecf4;
+  border-radius: 10px;
+  background: #fff;
+  color: #40384c;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.write-image-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+
+.write-image-modal-img {
+  max-width: min(90vw, 960px);
+  max-height: 90vh;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.post-submit-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.post-submit-row button {
+  border: 1px solid #ff7b61;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 16px;
+}
+
+.post-submit-row button:hover {
+  filter: brightness(0.95);
+}
+
+@media (max-width: 920px) {
+  .post-write-wrap {
+    padding: 14px 12px;
+  }
+
+  .post-write-header h1 {
+    font-size: 24px;
+  }
+
+}

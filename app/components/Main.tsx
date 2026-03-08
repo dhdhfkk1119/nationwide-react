@@ -1,104 +1,54 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import CommunitySidebar from "@/app/components/community/CommunitySidebar";
+import showSwal from "@/app/components/modal/Swal";
+import { useAuth } from "@/app/providers/AuthProvider";
+import memberApi from "@/service/api";
 import "@/app/styles/main.css";
-import { useEffect, useMemo, useRef, useState } from "react";
 
 type SortType = "latest" | "views" | "likes";
 
-interface FeedPost {
+type BoardListItem = {
   id: number;
+  memberIdx: number;
+  name: string;
+  title: string;
+  content: string;
+  viewCnt: number;
+  likeCnt: number;
+  commentCnt: number;
+  createdAt: string;
+  isLiked?: boolean;
+  liked?: boolean;
+  imagePath?: string[];
+};
+
+type BoardSliceResponse = {
+  content: BoardListItem[];
+  hasNext?: boolean;
+  last?: boolean;
+};
+
+type FeedPost = {
+  id: number;
+  memberIdx: number;
   author: string;
   profileImage: string;
-  distance: string;
   text: string;
   likes: number;
   comments: number;
   views: number;
   createdAt: string;
-}
+  isLiked: boolean;
+  imageUrls: string[];
+};
 
-const menuItems = [
-  { key: "profile", label: "프로필", icon: "bi-person-circle", href: "/mypage" },
-  {
-    key: "neighbors",
-    label: "동네친구",
-    icon: "bi-geo-alt-fill",
-    href: "/neighbors",
-  },
-  { key: "message", label: "메시지", icon: "bi-chat-dots-fill", href: "/dm" },
-  {
-    key: "notification",
-    label: "알림",
-    icon: "bi-bell-fill",
-    href: "/notifications",
-  },
-  {
-    key: "support",
-    label: "고객센터",
-    icon: "bi-headset",
-    href: "/support",
-  },
-  { key: "setting", label: "설정", icon: "bi-gear-fill", href: "/settings" },
-  { key: "shop", label: "상점", icon: "bi-bag-fill", href: "/shop" },
-];
-
-const samplePosts: FeedPost[] = [
-  {
-    id: 1,
-    author: "다온",
-    profileImage: "/assets/profile.png",
-    distance: "0.8km",
-    text: "오늘 저녁에 같이 산책하실 분 있나요? 한강 쪽으로 가요.",
-    likes: 28,
-    comments: 9,
-    views: 154,
-    createdAt: "2026-03-06T10:10:00",
-  },
-  {
-    id: 2,
-    author: "하린",
-    profileImage: "/assets/profile.png",
-    distance: "1.1km",
-    text: "동네 새로 생긴 브런치 카페 다녀왔는데 분위기 좋아요.",
-    likes: 42,
-    comments: 13,
-    views: 231,
-    createdAt: "2026-03-05T18:20:00",
-  },
-  {
-    id: 3,
-    author: "시우",
-    profileImage: "/assets/profile.png",
-    distance: "2.4km",
-    text: "주말에 전시회 보러 갈 사람 구해요. 관심 있으면 DM 주세요.",
-    likes: 17,
-    comments: 6,
-    views: 98,
-    createdAt: "2026-03-04T09:35:00",
-  },
-  {
-    id: 4,
-    author: "지안",
-    profileImage: "/assets/profile.png",
-    distance: "0.5km",
-    text: "퇴근하고 가볍게 운동 같이 할 분 찾습니다.",
-    likes: 35,
-    comments: 11,
-    views: 186,
-    createdAt: "2026-03-06T08:05:00",
-  },
-  {
-    id: 5,
-    author: "유진",
-    profileImage: "/assets/profile.png",
-    distance: "1.9km",
-    text: "반려견 산책 모임 만들어볼까 해요. 관심 있으면 댓글 부탁해요.",
-    likes: 51,
-    comments: 22,
-    views: 302,
-    createdAt: "2026-03-03T20:50:00",
-  },
-];
+const PAGE_SIZE = 5;
+const IMAGE_SIZE = 300;
+const IMAGE_GAP = 10;
+const IMAGE_SCROLL_STEP = IMAGE_SIZE + IMAGE_GAP;
 
 const sortLabelMap: Record<SortType, string> = {
   latest: "최신순",
@@ -106,18 +56,195 @@ const sortLabelMap: Record<SortType, string> = {
   likes: "좋아요순",
 };
 
+const toPublicImageUrl = (rawPath: string) => {
+  if (!rawPath) return "";
+  if (rawPath.startsWith("http://") || rawPath.startsWith("https://")) return rawPath;
+
+  const base = (process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:80").replace(/\/+$/, "");
+  const normalized = rawPath.replace(/\\/g, "/");
+
+  if (normalized.startsWith("/uploads/")) return `${base}${normalized}`;
+
+  const uploadsIdx = normalized.indexOf("/uploads/");
+  if (uploadsIdx >= 0) return `${base}${normalized.slice(uploadsIdx)}`;
+
+  const fileName = normalized.split("/").pop();
+  if (!fileName) return "";
+  return `${base}/uploads/image/${fileName}`;
+};
+
+const toFeedPost = (item: BoardListItem): FeedPost => ({
+  id: item.id,
+  memberIdx: item.memberIdx,
+  author: item.name,
+  profileImage: "/assets/profile.png",
+  text: item.content || item.title,
+  likes: item.likeCnt ?? 0,
+  comments: item.commentCnt ?? 0,
+  views: item.viewCnt ?? 0,
+  createdAt: item.createdAt,
+  isLiked: Boolean(item.isLiked ?? item.liked),
+  imageUrls: (item.imagePath ?? []).map(toPublicImageUrl).filter(Boolean),
+});
+
 export default function Main() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const currentUserId = useMemo(() => {
+    if (!user) return null;
+    const u = user as { id?: number; memberIdx?: number };
+    const id = u.id ?? u.memberIdx;
+    return typeof id === "number" ? id : null;
+  }, [user]);
+
   const [query, setQuery] = useState("");
   const [sortType, setSortType] = useState<SortType>("latest");
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [draggingPostId, setDraggingPostId] = useState<number | null>(null);
+
   const sortDropdownRef = useRef<HTMLDetailsElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const loadingRef = useRef(false);
+  const likePendingRef = useRef(new Set<number>());
+  const imageStripRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const dragStateRef = useRef({ postId: null as number | null, startX: 0, startScrollLeft: 0 });
+
+  const fetchBoards = useCallback(async (targetPage: number) => {
+    if (loadingRef.current) return;
+
+    try {
+      loadingRef.current = true;
+      setIsLoading(true);
+      setLoadError("");
+
+      const res = await memberApi.getBoardList(targetPage, PAGE_SIZE);
+      const slice = (res.data?.response ?? {}) as BoardSliceResponse;
+      const content = Array.isArray(slice.content) ? slice.content : [];
+      const mapped = content.map(toFeedPost);
+
+      setPosts((prev) => (targetPage === 0 ? mapped : [...prev, ...mapped]));
+      setPage(targetPage);
+
+      if (content.length === 0) {
+        setHasNext(false);
+        return;
+      }
+
+      if (typeof slice.hasNext === "boolean") setHasNext(slice.hasNext);
+      else if (typeof slice.last === "boolean") setHasNext(!slice.last);
+      else setHasNext(content.length === PAGE_SIZE);
+    } catch (error) {
+      console.error("게시물 목록 조회 실패:", error);
+      setLoadError("게시물을 불러오지 못했습니다.");
+      setHasNext(false);
+    } finally {
+      loadingRef.current = false;
+      setIsLoading(false);
+    }
+  }, []);
+
+  const onOpenDetail = async (postId: number) => {
+    if (currentUserId === null) {
+      await showSwal("warning", "로그인 해주시기 바랍니다.");
+      return;
+    }
+    router.push(`/community/${postId}`);
+  };
+
+  const onToggleLike = async (postId: number) => {
+    if (currentUserId === null) {
+      await showSwal("warning", "로그인 후 이용해주세요.");
+      return;
+    }
+    if (likePendingRef.current.has(postId)) return;
+
+    likePendingRef.current.add(postId);
+
+    let prevLiked = false;
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== postId) return post;
+        prevLiked = post.isLiked;
+        return {
+          ...post,
+          isLiked: !post.isLiked,
+          likes: Math.max(0, post.likes + (post.isLiked ? -1 : 1)),
+        };
+      }),
+    );
+
+    try {
+      await memberApi.toggleBoardLike(postId);
+    } catch {
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          return {
+            ...post,
+            isLiked: prevLiked,
+            likes: Math.max(0, post.likes + (prevLiked ? 1 : -1)),
+          };
+        }),
+      );
+      await showSwal("error", "좋아요 처리에 실패했습니다.");
+    } finally {
+      likePendingRef.current.delete(postId);
+    }
+  };
+
+  const onSlideImages = (postId: number, direction: "left" | "right") => {
+    const target = imageStripRefs.current[postId];
+    if (!target) return;
+    const delta = direction === "right" ? IMAGE_SCROLL_STEP : -IMAGE_SCROLL_STEP;
+    target.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  const onStripPointerDown = (postId: number, event: React.PointerEvent<HTMLDivElement>) => {
+    const strip = imageStripRefs.current[postId];
+    if (!strip) return;
+
+    dragStateRef.current = {
+      postId,
+      startX: event.clientX,
+      startScrollLeft: strip.scrollLeft,
+    };
+    strip.style.scrollBehavior = "auto";
+    setDraggingPostId(postId);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onStripDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const onStripPointerMove = (postId: number, event: React.PointerEvent<HTMLDivElement>) => {
+    const strip = imageStripRefs.current[postId];
+    if (!strip || dragStateRef.current.postId !== postId) return;
+
+    const diffX = event.clientX - dragStateRef.current.startX;
+    strip.scrollLeft = dragStateRef.current.startScrollLeft - diffX;
+  };
+
+  const onStripPointerUpOrCancel = (postId: number) => {
+    const strip = imageStripRefs.current[postId];
+    if (strip) strip.style.scrollBehavior = "smooth";
+
+    dragStateRef.current.postId = null;
+    setDraggingPostId((prev) => (prev === postId ? null : prev));
+  };
+
+  useEffect(() => {
+    fetchBoards(0);
+  }, [fetchBoards]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (
-        sortDropdownRef.current &&
-        !sortDropdownRef.current.contains(target)
-      ) {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(target)) {
         sortDropdownRef.current.removeAttribute("open");
       }
     };
@@ -126,9 +253,26 @@ export default function Main() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry.isIntersecting) return;
+        if (!hasNext || loadingRef.current) return;
+        fetchBoards(page + 1);
+      },
+      { rootMargin: "120px 0px" },
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [fetchBoards, hasNext, page]);
+
   const filteredPosts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    const searched = samplePosts.filter((post) => {
+    const searched = posts.filter((post) => {
       if (!normalized) return true;
       return (
         post.author.toLowerCase().includes(normalized) ||
@@ -139,38 +283,18 @@ export default function Main() {
     return [...searched].sort((a, b) => {
       if (sortType === "views") return b.views - a.views;
       if (sortType === "likes") return b.likes - a.likes;
-      return (
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [query, sortType]);
+  }, [posts, query, sortType]);
 
   return (
     <section className="main-page">
-      <aside className="main-sidebar" aria-label="main menu">
-        <div className="sidebar-title">커뮤니티 메뉴</div>
-        <nav>
-          <ul className="menu-list">
-            {menuItems.map((item) => (
-              <li key={item.key}>
-                <a className="menu-link" href={item.href}>
-                  <i className={`bi ${item.icon}`} aria-hidden="true"></i>
-                  <span>{item.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <button className="sidebar-write-btn" type="button">
-          <i className="bi bi-pencil-square"></i>
-          <span>게시글 쓰기</span>
-        </button>
-      </aside>
+      <CommunitySidebar />
 
       <div className="feed-area">
         <header className="feed-header">
           <h1>동네 피드</h1>
-          <p>근처 사람들의 게시글을 확인하고 소통해보세요.</p>
+          <p>근처 이웃들의 게시글을 확인하고 소통해보세요.</p>
 
           <div className="feed-filter-row">
             <div className="feed-search-box">
@@ -179,7 +303,7 @@ export default function Main() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="게시물을 검색하세요"
+                placeholder="게시물을 검색해주세요"
               />
             </div>
 
@@ -229,7 +353,19 @@ export default function Main() {
 
         <div className="feed-list">
           {filteredPosts.map((post) => (
-            <article key={post.id} className="feed-card">
+            <article
+              key={post.id}
+              className="feed-card"
+              onClick={() => void onOpenDetail(post.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  void onOpenDetail(post.id);
+                }
+              }}
+            >
               <div className="feed-card-header">
                 <div className="feed-author-block">
                   <div className="feed-author-row">
@@ -239,14 +375,20 @@ export default function Main() {
                       className="feed-profile-image"
                     />
                     <strong className="feed-author-name">{post.author}</strong>
-                    <button className="follow-plus-btn" type="button">
-                      +
-                    </button>
+                    {currentUserId !== post.memberIdx && (
+                      <button
+                        className="follow-plus-btn"
+                        type="button"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        +
+                      </button>
+                    )}
                   </div>
-                  <span className="feed-distance">{post.distance}</span>
+                  <span className="feed-distance">{post.createdAt}</span>
                 </div>
 
-                <details className="post-menu">
+                <details className="post-menu" onClick={(event) => event.stopPropagation()}>
                   <summary className="feed-more-btn" aria-label="게시물 메뉴 열기">
                     <i className="bi bi-three-dots"></i>
                   </summary>
@@ -266,9 +408,51 @@ export default function Main() {
 
               <p className="feed-content">{post.text}</p>
 
-              <div className="feed-actions">
-                <button type="button">
-                  <i className="bi bi-heart"></i>
+              {post.imageUrls.length > 0 && (
+                <div className="feed-image-wrap" onClick={(event) => event.stopPropagation()}>
+                  <div className="feed-image-strip-mask">
+                    <div
+                      className={`feed-image-strip ${draggingPostId === post.id ? "is-dragging" : ""}`}
+                      ref={(el) => {
+                        imageStripRefs.current[post.id] = el;
+                      }}
+                      onDragStart={onStripDragStart}
+                      onPointerDown={(event) => onStripPointerDown(post.id, event)}
+                      onPointerMove={(event) => onStripPointerMove(post.id, event)}
+                      onPointerUp={() => onStripPointerUpOrCancel(post.id)}
+                      onPointerCancel={() => onStripPointerUpOrCancel(post.id)}
+                    >
+                      {post.imageUrls.map((url, index) => (
+                        <img
+                          key={`${post.id}-${index}`}
+                          src={url}
+                          alt={`게시글 이미지 ${index + 1}`}
+                          className="feed-post-image"
+                          draggable={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {post.imageUrls.length > 1 && (
+                    <div className="feed-image-controls">
+                      <button type="button" onClick={() => onSlideImages(post.id, "left")}>
+                        <i className="bi bi-chevron-left"></i>
+                      </button>
+                      <button type="button" onClick={() => onSlideImages(post.id, "right")}>
+                        <i className="bi bi-chevron-right"></i>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="feed-actions" onClick={(event) => event.stopPropagation()}>
+                <button
+                  type="button"
+                  className={post.isLiked ? "is-liked" : ""}
+                  onClick={() => void onToggleLike(post.id)}
+                >
+                  <i className={`bi ${post.isLiked ? "bi-heart-fill" : "bi-heart"}`}></i>
                   <span>{post.likes}</span>
                 </button>
                 <button type="button">
@@ -289,6 +473,14 @@ export default function Main() {
             </article>
           ))}
         </div>
+
+        {!isLoading && filteredPosts.length === 0 && !loadError && (
+          <p className="feed-empty">게시글이 없습니다.</p>
+        )}
+        {loadError && <p className="feed-empty">{loadError}</p>}
+        {isLoading && <p className="feed-empty">게시글을 불러오는 중...</p>}
+
+        <div ref={loadMoreRef} style={{ height: 1 }} />
       </div>
     </section>
   );
