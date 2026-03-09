@@ -152,6 +152,10 @@ export default function Main() {
       await showSwal("warning", "로그인 해주시기 바랍니다.");
       return;
     }
+    if (!Number.isFinite(postId) || postId <= 0) {
+      await showSwal("error", "게시물 정보를 확인할 수 없습니다.");
+      return;
+    }
     router.push(`/community/${postId}`);
   };
 

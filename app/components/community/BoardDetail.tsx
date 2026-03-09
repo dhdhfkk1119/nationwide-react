@@ -48,6 +48,7 @@ const toPublicImageUrl = (rawPath: string) => {
 export default function BoardDetail({ boardId }: { boardId: number }) {
   const router = useRouter();
   const { user } = useAuth();
+  const isInvalidBoardId = !Number.isFinite(boardId) || boardId <= 0;
   const [detail, setDetail] = useState<BoardDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [commentInput, setCommentInput] = useState("");
@@ -64,6 +65,11 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
   );
 
   const fetchDetail = useCallback(async () => {
+    if (isInvalidBoardId) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const res = await memberApi.getBoardDetail(boardId);
@@ -74,12 +80,25 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
     } finally {
       setIsLoading(false);
     }
-  }, [boardId]);
+  }, [boardId, isInvalidBoardId]);
 
   useEffect(() => {
     if (!user) return;
     fetchDetail();
   }, [fetchDetail, user]);
+
+  if (isInvalidBoardId) {
+    return (
+      <section className="main-page">
+        <CommunitySidebar />
+        <div className="feed-area">
+          <div className="board-detail-wrap">
+            <p className="board-detail-empty">잘못된 게시물 주소입니다.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const onSubmitComment = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
