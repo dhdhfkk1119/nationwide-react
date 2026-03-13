@@ -42,6 +42,7 @@
 }
 
 .header .alrams a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -55,4 +56,22 @@
 
 .header .alrams i {
   font-size: 16px;
+}
+
+.header .alarm-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ff3b30;
+  color: #ffffff;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
 }

@@ -1,0 +1,439 @@
+.mypage-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mypage-profile-card,
+.mypage-edit-form {
+  border: 1px solid #e6e2eb;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 3px 14px rgba(24, 16, 38, 0.06);
+}
+
+.mypage-profile-card {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 20px;
+  padding: 24px;
+}
+
+.mypage-profile-image {
+  width: 140px;
+  height: 140px;
+  border: 1px solid #ece7f2;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 0;
+  background: #f5f5f5;
+}
+
+.mypage-profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mypage-profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mypage-feed-header-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mypage-profile-name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mypage-profile-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mypage-profile-name-row h1,
+.mypage-edit-head h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  color: #231a2e;
+}
+
+.mypage-profile-name-row p,
+.mypage-edit-head p {
+  margin: 6px 0 0;
+  color: #7a7485;
+}
+
+.mypage-edit-link,
+.mypage-load-more,
+.mypage-save-btn,
+.mypage-edit-cancel {
+  border: 1px solid #ece7f2;
+  border-radius: 999px;
+  background: #fff;
+  color: #2f2638;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mypage-edit-link,
+.mypage-edit-cancel {
+  padding: 10px 16px;
+}
+
+.mypage-load-more,
+.mypage-save-btn {
+  padding: 12px 18px;
+}
+
+.mypage-edit-link:hover,
+.mypage-load-more:hover,
+.mypage-save-btn:hover,
+.mypage-edit-cancel:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(24, 16, 38, 0.12);
+}
+
+.mypage-profile-stats {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.mypage-profile-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6f6a77;
+}
+
+.mypage-profile-stats strong {
+  font-size: 20px;
+  color: #231a2e;
+}
+
+.mypage-profile-bio {
+  grid-column: 1 / -1;
+  padding-top: 4px;
+  border-top: 1px solid #ece7f2;
+  color: #2b2335;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.mypage-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mypage-tabs button {
+  border: 1px solid #ece7f2;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #6f6a77;
+  padding: 10px 16px;
+  font-weight: 700;
+}
+
+.mypage-tabs button.is-active {
+  border-color: #ffb9ab;
+  background: #fff2ed;
+  color: #ff5a3c;
+}
+
+.mypage-tabs button:hover {
+  background: #fff7f4;
+  border-color: #ffd2c6;
+  color: #ff5a3c;
+}
+
+.mypage-feed-list {
+  gap: 14px;
+}
+
+.mypage-stat-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+}
+
+.mypage-profile-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6f6a77;
+}
+
+.mypage-feed-card {
+  cursor: pointer;
+}
+
+.mypage-feed-card:hover {
+  box-shadow: 0 6px 20px rgba(24, 16, 38, 0.08);
+}
+
+.mypage-feed-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #f0ecf4;
+  border-radius: 10px;
+  background: #faf8fd;
+  color: #40384c;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.mypage-own-comment-box {
+  margin-top: 12px;
+  border: 1px solid #ece7f2;
+  border-radius: 14px;
+  background: #faf8fc;
+  padding: 12px 14px;
+}
+
+.mypage-own-comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.mypage-own-comment-list .mypage-own-comment-box {
+  margin-top: 0;
+}
+
+.mypage-own-comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mypage-own-comment-label {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #fff2ed;
+  color: #ff5a3c;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mypage-own-comment-date {
+  color: #7a7485;
+  font-size: 12px;
+}
+
+.mypage-own-comment-text {
+  margin: 10px 0 0;
+  color: #2b2335;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.mypage-empty {
+  margin: 0;
+  border: 1px dashed #ddd6e8;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #7a7485;
+  padding: 18px;
+  text-align: center;
+}
+
+.mypage-follow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mypage-follow-item {
+  width: 100%;
+  border: 1px solid #ece7f2;
+  border-radius: 16px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.mypage-follow-item-main {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+}
+
+.mypage-follow-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ece7f2;
+  background: #f5f5f5;
+}
+
+.mypage-follow-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mypage-follow-meta strong {
+  color: #231a2e;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.mypage-follow-meta span {
+  color: #7a7485;
+  font-size: 13px;
+}
+
+.mypage-follow-meta p {
+  margin: 0;
+  color: #2b2335;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.mypage-follow-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mypage-follow-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #fff2ed;
+  color: #ff5a3c;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mypage-follow-badge.is-soft {
+  background: #f5f5f5;
+  color: #2f2638;
+}
+
+.mypage-follow-toggle {
+  border: 1px solid #ece7f2;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #2f2638;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mypage-follow-toggle.is-active {
+  background: #fff2ed;
+  border-color: #ffb9ab;
+  color: #ff5a3c;
+}
+
+.mypage-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+}
+
+.mypage-edit-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mypage-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mypage-edit-field span {
+  color: #2f2638;
+  font-weight: 700;
+}
+
+.mypage-edit-field input,
+.mypage-edit-field textarea {
+  border: 1px solid #e4deeb;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #2f2638;
+  padding: 12px 14px;
+}
+
+.mypage-edit-preview-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 1px solid #e4deeb;
+  border-radius: 50%;
+  background: #f5f5f5;
+}
+
+.mypage-edit-field input:focus,
+.mypage-edit-field textarea:focus {
+  outline: 0;
+  border-color: #ff8a73;
+  box-shadow: 0 0 0 4px rgba(255, 90, 60, 0.14);
+}
+
+@media (max-width: 900px) {
+  .mypage-profile-card {
+    grid-template-columns: 1fr;
+  }
+
+  .mypage-profile-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .mypage-profile-name-row,
+  .mypage-edit-head {
+    flex-direction: column;
+  }
+
+  .mypage-follow-item {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+}

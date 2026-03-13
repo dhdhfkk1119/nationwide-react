@@ -3,14 +3,16 @@ import "@/app/styles/app.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-import Header from "@/app/components/Header";
-import Footer from "@/app/components/Footer";
-import Main from "@/app/components/Main";
 import { AuthProvider } from "@/app/providers/AuthProvider";
+import { AlarmProvider } from "@/app/providers/AlarmProvider";
+import Footer from "@/app/components/Footer";
+import Header from "@/app/components/Header";
+import { LocaleProvider } from "@/app/providers/LocaleProvider";
+import ScrollTopButton from "@/app/components/ScrollTopButton";
 
 export const metadata = {
-  title: "Next.js 메인 앱",
-  description: "Next.js로 만든 앱의 기본 설명입니다.",
+  title: "Nationwide",
+  description: "Nationwide application",
 };
 
 export default function RootLayout({
@@ -27,16 +29,18 @@ export default function RootLayout({
         ></script>
       </head>
       <body>
-        <AuthProvider>
-          <div className="App">
-            {/* Header → useAuth 가능 */}
-            <Header />
-
-            <main>{children}</main>
-
-            <Footer />
-          </div>
-        </AuthProvider>
+        <LocaleProvider>
+          <AuthProvider>
+            <AlarmProvider>
+              <div className="App">
+                <Header />
+                <main>{children}</main>
+                <ScrollTopButton />
+                <Footer />
+              </div>
+            </AlarmProvider>
+          </AuthProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

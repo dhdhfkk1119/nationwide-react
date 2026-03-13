@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { MouseEvent } from "react";
-import { useAuth } from "@/app/providers/AuthProvider";
 import showSwal from "@/app/components/modal/Swal";
+import { useAlarm } from "@/app/providers/AlarmProvider";
+import { useAuth } from "@/app/providers/AuthProvider";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 type CommunitySidebarProps = {
   activeMenuKey?: string;
@@ -17,36 +19,58 @@ type MenuItem = {
   href: string;
 };
 
-const menuItems: MenuItem[] = [
-  {
-    key: "profile",
-    label: "프로필",
-    icon: "bi-person-circle",
-    href: "/mypage",
-  },
-  {
-    key: "neighbors",
-    label: "동네친구",
-    icon: "bi-geo-alt-fill",
-    href: "/neighbors",
-  },
-  { key: "message", label: "메시지", icon: "bi-chat-dots-fill", href: "/dm" },
-  {
-    key: "notification",
-    label: "알림",
-    icon: "bi-bell-fill",
-    href: "/notifications",
-  },
-  { key: "support", label: "고객센터", icon: "bi-headset", href: "/support" },
-  { key: "setting", label: "설정", icon: "bi-gear-fill", href: "/settings" },
-  { key: "shop", label: "상점", icon: "bi-bag-fill", href: "/shop" },
-];
-
 export default function CommunitySidebar({
   activeMenuKey,
   isWritePage = false,
 }: CommunitySidebarProps) {
   const { user } = useAuth();
+  const { messages } = useLocale();
+  const { unreadCount } = useAlarm();
+
+  const menuItems: MenuItem[] = [
+    {
+      key: "profile",
+      label: messages.sidebar.profile,
+      icon: "bi-person-circle",
+      href: "/mypage",
+    },
+    {
+      key: "neighbors",
+      label: messages.sidebar.neighbors,
+      icon: "bi-geo-alt-fill",
+      href: "/neighbors",
+    },
+    {
+      key: "message",
+      label: messages.sidebar.message,
+      icon: "bi-chat-dots-fill",
+      href: "/dm",
+    },
+    {
+      key: "notification",
+      label: messages.sidebar.notification,
+      icon: "bi-bell-fill",
+      href: "/notifications",
+    },
+    {
+      key: "support",
+      label: messages.sidebar.support,
+      icon: "bi-headset",
+      href: "/support",
+    },
+    {
+      key: "setting",
+      label: messages.sidebar.setting,
+      icon: "bi-gear-fill",
+      href: "/settings",
+    },
+    {
+      key: "shop",
+      label: messages.sidebar.shop,
+      icon: "bi-bag-fill",
+      href: "/shop",
+    },
+  ];
 
   const onProtectedClick = async (event: MouseEvent<HTMLAnchorElement>) => {
     if (user) return;
@@ -54,13 +78,15 @@ export default function CommunitySidebar({
     event.preventDefault();
     await showSwal(
       "warning",
-      "해당 서비스는 로그인 이후 사용가능합니다<br/>로그인 해주시기 바랍니다.!!",
+      messages.sidebar.loginRequiredMessage,
+      undefined,
+      messages.common.confirm,
     );
   };
 
   return (
     <aside className="main-sidebar" aria-label="community menu">
-      <div className="sidebar-title black">커뮤니티 메뉴</div>
+      <div className="sidebar-title black">{messages.sidebar.title}</div>
       <nav>
         <ul className="menu-list">
           {menuItems.map((item) => (
@@ -71,7 +97,14 @@ export default function CommunitySidebar({
                 onClick={onProtectedClick}
               >
                 <i className={`bi ${item.icon}`} aria-hidden="true"></i>
-                <span>{item.label}</span>
+                <span className="menu-link-label">
+                  <span>{item.label}</span>
+                  {item.key === "notification" && user && unreadCount > 0 ? (
+                    <span className="sidebar-notification-badge">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  ) : null}
+                </span>
               </Link>
             </li>
           ))}
@@ -84,7 +117,9 @@ export default function CommunitySidebar({
         onClick={onProtectedClick}
       >
         <i className="bi bi-pencil-square" aria-hidden="true"></i>
-        <span>{isWritePage ? "게시글 작성 중" : "게시글 쓰기"}</span>
+        <span>
+          {isWritePage ? messages.sidebar.writingPost : messages.sidebar.writePost}
+        </span>
       </Link>
     </aside>
   );

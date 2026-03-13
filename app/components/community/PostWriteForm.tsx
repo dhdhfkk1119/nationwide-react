@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import "@/app/styles/post-write.css";
-import memberApi from "@/service/api";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import showSwal from "@/app/components/modal/Swal";
+import { useHorizontalDragScroll } from "@/app/hooks/useHorizontalDragScroll";
+import memberApi from "@/service/api";
 
 type SelectedImage = {
   file: File;
@@ -26,16 +27,19 @@ const readFileAsDataUrl = (file: File) =>
 
 export default function PostWriteForm() {
   const router = useRouter();
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const stripRef = useRef<HTMLDivElement | null>(null);
-  const dragStartXRef = useRef<number | null>(null);
-  const dragStartScrollLeftRef = useRef(0);
+  const {
+    isDragging,
+    movedDuringDragRef,
+    onPointerDown,
+    onPointerMove,
+    onPointerUpOrCancel,
+    scrollByStep,
+    stripRef,
+  } = useHorizontalDragScroll({ ignoreSelector: "button" });
 
   const canAddCount = MAX_IMAGES - selectedImages.length;
 
@@ -71,53 +75,20 @@ export default function PostWriteForm() {
     });
   };
 
-  const slideImages = (direction: "left" | "right") => {
-    const strip = stripRef.current;
-    if (!strip) return;
-    const delta = direction === "right" ? IMAGE_SCROLL_STEP : -IMAGE_SCROLL_STEP;
-    strip.scrollBy({ left: delta, behavior: "smooth" });
-  };
-
-  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!stripRef.current) return;
-    if ((event.target as Element).closest("button")) return;
-
-    dragStartXRef.current = event.clientX;
-    dragStartScrollLeftRef.current = stripRef.current.scrollLeft;
-    setIsDragging(true);
-    stripRef.current.style.scrollBehavior = "auto";
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (dragStartXRef.current === null || !stripRef.current) return;
-    const diffX = event.clientX - dragStartXRef.current;
-    stripRef.current.scrollLeft = dragStartScrollLeftRef.current - diffX;
-  };
-
-  const onPointerUpOrCancel = () => {
-    if (stripRef.current) {
-      stripRef.current.style.scrollBehavior = "smooth";
-    }
-    dragStartXRef.current = null;
-    setIsDragging(false);
-  };
-
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isSubmitting) return;
 
-    const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
-    if (!trimmedTitle || !trimmedContent) {
-      await showSwal("error", "제목과 내용을 입력해주세요.");
+    if (!trimmedContent) {
+      await showSwal("error", "내용을 입력해주세요.");
       return;
     }
 
     const formData = new FormData();
     formData.append(
       "data",
-      new Blob([JSON.stringify({ title: trimmedTitle, content: trimmedContent })], {
+      new Blob([JSON.stringify({ title: "", content: trimmedContent })], {
         type: "application/json",
       }),
     );
@@ -126,23 +97,21 @@ export default function PostWriteForm() {
     try {
       setIsSubmitting(true);
       await memberApi.createBoard(formData);
-      await showSwal("success", "게시글이 등록되었습니다.");
+      await showSwal("success", "게시글을 등록했습니다.");
 
-      setTitle("");
       setContent("");
       setSelectedImages([]);
       router.push("/");
     } catch (error: unknown) {
-      const message =
+      const errorMessage =
         typeof error === "object" &&
         error !== null &&
         "response" in error &&
-        typeof (error as { response?: unknown }).response === "object" &&
-        (error as { response?: { data?: { error?: { message?: string } } } })
-          .response?.data?.error?.message
+        typeof (error as { response?: unknown }).response === "object"
           ? (error as { response?: { data?: { error?: { message?: string } } } })
               .response?.data?.error?.message
-          : "게시글 등록에 실패했습니다.";
+          : undefined;
+      const message = errorMessage ?? "게시글 등록에 실패했습니다.";
       await showSwal("error", message);
     } finally {
       setIsSubmitting(false);
@@ -157,19 +126,6 @@ export default function PostWriteForm() {
       </header>
 
       <form className="post-write-form" onSubmit={onSubmit}>
-        <div className="post-field">
-          <label htmlFor="post-title">제목</label>
-          <input
-            id="post-title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="제목을 입력해주세요"
-            maxLength={80}
-            required
-          />
-        </div>
-
         <div className="post-field">
           <label htmlFor="post-content">내용</label>
           <textarea
@@ -223,7 +179,10 @@ export default function PostWriteForm() {
                         alt={`업로드 이미지 ${index + 1}`}
                         className="write-image"
                         draggable={false}
-                        onClick={() => setZoomedImage(image.previewUrl)}
+                        onClick={() => {
+                          if (movedDuringDragRef.current) return;
+                          setZoomedImage(image.previewUrl);
+                        }}
                       />
                     </div>
                   ))}
@@ -232,11 +191,19 @@ export default function PostWriteForm() {
 
               {selectedImages.length > 1 && (
                 <div className="write-image-controls">
-                  <button type="button" onClick={() => slideImages("left")} disabled={isSubmitting}>
+                  <button
+                    type="button"
+                    onClick={() => scrollByStep(IMAGE_SCROLL_STEP, "left")}
+                    disabled={isSubmitting}
+                  >
                     <i className="bi bi-chevron-left" aria-hidden="true"></i>
                     이전
                   </button>
-                  <button type="button" onClick={() => slideImages("right")} disabled={isSubmitting}>
+                  <button
+                    type="button"
+                    onClick={() => scrollByStep(IMAGE_SCROLL_STEP, "right")}
+                    disabled={isSubmitting}
+                  >
                     다음
                     <i className="bi bi-chevron-right" aria-hidden="true"></i>
                   </button>

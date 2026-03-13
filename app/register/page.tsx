@@ -12,6 +12,23 @@ import BaseCard from "../components/util_card/BaseCard";
 import showSwal from "../components/modal/Swal";
 import { Messages } from "../constants/Messages";
 
+type DaumPostcodeData = {
+  zonecode: string;
+  roadAddress: string;
+};
+
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (options: {
+        oncomplete: (data: DaumPostcodeData) => void;
+      }) => {
+        open: () => void;
+      };
+    };
+  }
+}
+
 export default function RegisterPage() {
   const [isEmailSent, setIsEmailSent] = useState(false); // 이메일 보내기
   const [isEmailValid, setIsEmailValid] = useState(false); // 이메일 중복확인
@@ -63,7 +80,9 @@ export default function RegisterPage() {
     PasswordChecked &&
     isAllFilled;
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
 
     if (name === "phoneNumber") {
@@ -141,6 +160,11 @@ export default function RegisterPage() {
   };
 
   const handleCodeVerify = async () => {
+    if (!form.loginId) {
+      showSwal("warning", Messages.EMAIL_REQUIRED);
+      return;
+    }
+
     if (!form.code) {
       showSwal("warning", Messages.EMAIL_REQUIRED);
       return;
@@ -302,7 +326,7 @@ export default function RegisterPage() {
             type="text"
             name="birthFull"
             placeholder="생년월일 (예: 19990408)"
-            maxLength="8"
+            maxLength={8}
             onChange={handleChange}
           />
 

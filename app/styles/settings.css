@@ -1,0 +1,258 @@
+.settings-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-header,
+.settings-detail-card,
+.settings-empty-card,
+.settings-placeholder-card {
+  border: 1px solid #111111;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.settings-header,
+.settings-detail-card {
+  padding: 24px;
+}
+
+.settings-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #111111;
+}
+
+.settings-header h1,
+.settings-detail-card h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #111111;
+}
+
+.settings-description {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #222222;
+}
+
+.settings-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-menu-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #111111;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 16px 18px;
+  color: #111111;
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.settings-menu-item:hover {
+  background: #f5f5f5;
+  color: #111111;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.settings-menu-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.settings-menu-copy strong {
+  font-size: 19px;
+  font-weight: 800;
+  color: #111111;
+}
+
+.settings-menu-copy span {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333333;
+}
+
+.settings-menu-item i {
+  justify-self: end;
+  font-size: 18px;
+  color: #111111;
+}
+
+.settings-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  border: 1px solid #111111;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #111111;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.settings-back-link:hover {
+  background: #f5f5f5;
+  color: #111111;
+  transform: translateY(-1px);
+}
+
+.settings-empty-card,
+.settings-placeholder-card {
+  padding: 18px 20px;
+  color: #111111;
+}
+
+.settings-placeholder-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-language-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-language-summary,
+.settings-language-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-language-summary strong,
+.settings-language-copy strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111111;
+}
+
+.settings-language-summary span,
+.settings-language-copy p {
+  margin: 0;
+  color: #333333;
+  line-height: 1.6;
+}
+
+.settings-language-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-language-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #111111;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px 16px;
+  text-align: left;
+  color: #111111;
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.settings-language-button:hover:not(:disabled) {
+  background: #f5f5f5;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.settings-language-button:disabled {
+  cursor: default;
+}
+
+.settings-language-button.is-active {
+  background: #f5f5f5;
+}
+
+.settings-language-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-language-labels strong {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.settings-language-labels span {
+  font-size: 13px;
+  color: #555555;
+}
+
+.settings-language-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #111111;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.settings-placeholder-card strong {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.settings-placeholder-card p,
+.settings-empty-card {
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 920px) {
+  .settings-header,
+  .settings-detail-card {
+    padding: 20px;
+  }
+
+  .settings-menu-item {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .settings-menu-item i {
+    justify-self: start;
+  }
+}

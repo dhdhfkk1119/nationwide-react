@@ -25,9 +25,41 @@
 
 .board-detail-meta {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   color: #7a7485;
   font-size: 13px;
+}
+
+.board-detail-meta strong {
+  color: #1d1526;
+  font-size: 15px;
+}
+
+.board-detail-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.board-detail-author {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.board-detail-profile-image {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ece7f2;
+  background: #fff;
 }
 
 .board-detail-content {
@@ -36,11 +68,37 @@
   line-height: 1.6;
 }
 
+.board-detail-image-section {
+  margin: 10px 0 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.board-detail-image-mask {
+  width: 100%;
+  max-width: 710px;
+  overflow: hidden;
+}
+
 .board-detail-image-list {
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  margin: 10px 0 14px;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.board-detail-image-list.is-dragging {
+  cursor: grabbing;
+}
+
+.board-detail-image-list::-webkit-scrollbar {
+  display: none;
 }
 
 .board-detail-image {
@@ -50,14 +108,53 @@
   border: 1px solid #ece7f2;
   border-radius: 12px;
   flex: 0 0 auto;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: auto;
+  cursor: zoom-in;
 }
 
-.board-detail-counts {
+.board-detail-image-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.board-detail-image-controls button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #f0ecf4;
+  border-radius: 8px;
+  background: #fff;
+  color: #40384c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-detail-actions {
   display: flex;
-  gap: 12px;
-  color: #655d73;
-  font-size: 14px;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 14px;
+}
+
+.board-detail-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #f0ecf4;
+  border-radius: 10px;
+  background: #faf8fd;
+  color: #40384c;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.board-detail-actions button.is-liked {
+  color: #d92d20;
+  border-color: #f3b0aa;
+  background: #fff2f1;
 }
 
 .board-comment-form {
@@ -96,11 +193,135 @@
   padding: 10px 0;
 }
 
+.board-comment-item.is-mine {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0;
+  border-top: 1px solid #f0ecf4;
+  background: #fff7f3;
+}
+
 .board-comment-head {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   color: #655d73;
   font-size: 12px;
+}
+
+.board-comment-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.board-comment-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.board-comment-author-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1d1526;
+}
+
+.board-comment-author-meta span {
+  color: #8a8098;
+}
+
+.board-comment-profile-image {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ece7f2;
+  background: #fff;
+}
+
+.board-comment-like-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #655d73;
+}
+
+.board-comment-like-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.board-comment-like-button.is-liked .board-comment-like-count {
+  color: #d92d20;
+}
+
+.board-detail-menu,
+.board-comment-menu {
+  position: relative;
+}
+
+.board-detail-menu summary,
+.board-comment-menu summary {
+  list-style: none;
+}
+
+.board-detail-menu summary::-webkit-details-marker,
+.board-comment-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.board-detail-menu-trigger,
+.board-comment-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #ece7f2;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #6f6a77;
+  cursor: pointer;
+}
+
+.board-detail-menu-list {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  z-index: 10;
+  min-width: 120px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #ede7f4;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(24, 16, 38, 0.12);
+}
+
+.board-detail-menu-list li {
+  list-style: none;
+}
+
+.board-detail-menu-list li + li {
+  margin-top: 4px;
+}
+
+.board-detail-menu-list button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2f2638;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.board-detail-menu-list button:hover {
+  background: #fff1eb;
 }
 
 .board-comment-item p {
@@ -109,8 +330,72 @@
   font-size: 14px;
 }
 
+.board-comment-edit-box {
+  margin-top: 8px;
+}
+
+.board-comment-edit-box textarea {
+  width: 100%;
+  border: 1px solid #e4deeb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #2f2638;
+  padding: 10px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.board-comment-edit-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.board-comment-edit-actions button {
+  border: 1px solid #ece7f2;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #2f2638;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+}
+
+.board-comment-edit-actions button.is-secondary {
+  background: #faf8fd;
+}
+
 .board-comment-empty,
 .board-detail-empty {
   color: #9b94a8;
   font-size: 14px;
+}
+
+@media (max-width: 760px) {
+  .board-detail-meta-row {
+    align-items: flex-start;
+  }
+
+  .board-detail-image-mask {
+    max-width: 100%;
+  }
+
+  .board-detail-image {
+    width: min(300px, calc(100vw - 74px));
+    height: min(300px, calc(100vw - 74px));
+  }
+
+  .board-comment-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .board-comment-author {
+    min-width: 0;
+  }
+
+  .board-comment-author-meta {
+    flex-wrap: wrap;
+  }
 }

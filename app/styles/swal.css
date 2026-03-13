@@ -1,6 +1,6 @@
 .swal-bootstrap {
   border: 1px solid #e8e0ef;
-  border-radius: 14px;
+  border-radius: 18px;
   background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
   box-shadow: 0 10px 24px rgba(24, 16, 38, 0.16);
   padding: 24px;
@@ -8,8 +8,9 @@
 
 .swal-title {
   color: #2d2437;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
+  line-height: 1.35;
 }
 
 .swal-text {
@@ -17,12 +18,30 @@
   font-size: 14px;
 }
 
+.swal-bootstrap .swal2-actions {
+  gap: 12px;
+}
+
+.swal-bootstrap .swal2-actions button {
+  margin: 0;
+}
+
 .swal-confirm-btn {
-  width: 100%;
+  min-width: 108px;
   border: 0;
   border-radius: 10px;
   background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
   color: #fff;
+  padding: 10px 14px;
+  font-weight: 700;
+}
+
+.swal-cancel-btn {
+  min-width: 108px;
+  border: 1px solid #e3dceb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #524a5e;
   padding: 10px 14px;
   font-weight: 700;
 }

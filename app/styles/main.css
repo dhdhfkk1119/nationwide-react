@@ -8,7 +8,7 @@
 
 .main-sidebar {
   position: sticky;
-  top: 14px;
+  top: 90px;
   align-self: start;
   border: 1px solid #d8d8dd;
   border-radius: 16px;
@@ -35,7 +35,7 @@
   margin-top: 12px;
   width: 100%;
   height: 44px;
-  border: 1px solid #ff7b61;
+  border: 0;
   border-radius: 999px;
   background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
   color: #fff;
@@ -66,9 +66,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border-radius: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
   padding: 10px 12px;
   font-size: 15px;
+  font-weight: 800;
   color: #19171d;
   transition: background-color 0.2s ease;
 }
@@ -76,6 +79,27 @@
 .menu-link i {
   font-size: 18px;
   color: #ff5a3c;
+}
+
+.menu-link-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-notification-badge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ff3b30;
+  color: #ffffff;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .menu-link:hover,
@@ -159,7 +183,9 @@
   font-size: 14px;
   color: #2f2638;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .feed-sort-trigger::-webkit-details-marker {
@@ -249,13 +275,26 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.feed-author-link {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
 }
 
 .feed-profile-image {
   width: 25px;
   height: 25px;
   border-radius: 50%;
+  border: 1px solid #ece7f2;
   object-fit: cover;
+  background: #fff;
 }
 
 .feed-author-name {
@@ -284,6 +323,22 @@
   background: #ff5a3c;
   color: #fff;
   border-color: #ff5a3c;
+}
+
+.feed-follow-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #fff2ed;
+  color: #ff5a3c;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.feed-follow-status.is-soft {
+  background: #f5f5f5;
+  color: #2f2638;
 }
 
 .feed-distance {
@@ -350,6 +405,103 @@
   background: #fff1eb;
 }
 
+.feed-edit-box {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feed-edit-input,
+.feed-edit-textarea {
+  width: 100%;
+  border: 1px solid #e4deeb;
+  border-radius: 12px;
+  background: #fff;
+  color: #2f2638;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.feed-edit-textarea {
+  resize: vertical;
+}
+
+.feed-edit-image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.feed-edit-image-item {
+  position: relative;
+}
+
+.feed-edit-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 1px solid #ece7f2;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.feed-edit-image-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-edit-file-label {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  border: 1px solid #ece7f2;
+  border-radius: 999px;
+  background: #fff;
+  color: #2f2638;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.feed-edit-file-label input {
+  display: none;
+}
+
+.feed-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.feed-edit-cancel,
+.feed-edit-save {
+  border: 1px solid #ece7f2;
+  border-radius: 999px;
+  background: #fff;
+  color: #2f2638;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.feed-edit-save {
+  border-color: #ffb9ab;
+  background: #fff2ed;
+  color: #ff5a3c;
+}
+
 .feed-content {
   margin: 12px 0;
   line-height: 1.5;
@@ -400,7 +552,8 @@
   background: #fff;
   -webkit-user-drag: none;
   user-select: none;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: zoom-in;
 }
 
 .feed-image-controls {

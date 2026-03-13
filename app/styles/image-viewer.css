@@ -1,0 +1,138 @@
+.image-viewer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(84, 88, 96, 0.62);
+}
+
+.image-viewer-shell {
+  position: relative;
+  width: min(500px, calc(100vw - 40px));
+  height: min(500px, calc(100vh - 80px));
+}
+
+.image-viewer-strip {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  cursor: grab;
+  border-radius: 18px;
+  background: rgba(36, 38, 44, 0.74);
+}
+
+.image-viewer-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.image-viewer-strip.is-dragging {
+  cursor: grabbing;
+}
+
+.image-viewer-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.image-viewer-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.image-viewer-close,
+.image-viewer-nav {
+  border: 0;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.image-viewer-close {
+  position: absolute;
+  top: -52px;
+  right: 0;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.image-viewer-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+
+.image-viewer-nav.left {
+  left: -64px;
+}
+
+.image-viewer-nav.right {
+  right: -64px;
+}
+
+.image-viewer-count {
+  position: absolute;
+  left: 50%;
+  bottom: -48px;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 13px;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 760px) {
+  .image-viewer-overlay {
+    padding: 12px;
+  }
+
+  .image-viewer-shell {
+    width: min(500px, calc(100vw - 24px));
+    height: min(500px, calc(100vw - 24px));
+  }
+
+  .image-viewer-close {
+    top: 8px;
+    right: 8px;
+  }
+
+  .image-viewer-nav {
+    width: 42px;
+    height: 42px;
+  }
+
+  .image-viewer-nav.left {
+    left: 8px;
+  }
+
+  .image-viewer-nav.right {
+    right: 8px;
+  }
+
+  .image-viewer-count {
+    bottom: 8px;
+  }
+}

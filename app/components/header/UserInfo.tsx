@@ -1,46 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { useAlarm } from "@/app/providers/AlarmProvider";
+import { toProfileImageUrl } from "@/app/utils/imageUrl";
 import { useAuth } from "@/app/providers/AuthProvider";
+import { useLocale } from "@/app/providers/LocaleProvider";
 
 export default function UserInfo() {
   const { user, logout, loading } = useAuth();
+  const { messages } = useLocale();
+  const { unreadCount } = useAlarm();
 
   if (loading) return null;
-
-  const getProfileImageUrl = (profileImage?: string) => {
-    if (!profileImage) {
-      return (
-        process.env.NEXT_PUBLIC_IMAGE_URL + "uploads/member-images/profile.png"
-      );
-    }
-
-    // 이미 전체 URL인 경우 (http:// 또는 https://로 시작)
-    if (profileImage.startsWith("http")) {
-      return profileImage;
-    }
-
-    // 상대 경로인 경우 백엔드 서버 URL 붙이기
-    // profileImage: /uploads/member-images/profile1.png
-    // 결과: http://localhost/uploads/member-images/profile1.png
-    return `http://localhost${profileImage}`;
-  };
 
   return (
     <div className="userInfo">
       {!user ? (
-        // 🔹 로그인 안 된 경우
         <div className="user">
-          <Link href="/login">로그인</Link>
-          <Link href="/register">회원가입</Link>
+          <Link href="/login">{messages.header.login}</Link>
+          <Link href="/register">{messages.header.register}</Link>
         </div>
       ) : (
-        // 🔹 로그인 된 경우
         <div className="user">
           <Link href="/mypage" className="d-flex align-items-center">
             <img
-              src={getProfileImageUrl(user.profileImagePath?.[0])}
-              alt="profile"
+              src={toProfileImageUrl(user.profileImagePath?.[0])}
+              alt={messages.header.profileAlt}
               width={30}
               style={{
                 paddingRight: "5px",
@@ -48,18 +33,21 @@ export default function UserInfo() {
                 objectFit: "cover",
               }}
             />
-            <span>{user.name} 님</span>
+            <span>{user.name}</span>
           </Link>
 
           <button className="btn btn-link ms-2" onClick={logout}>
-            로그아웃
+            {messages.header.logout}
           </button>
         </div>
       )}
 
       <div className="alrams">
-        <Link href="/notifications">
+        <Link href="/notifications" className="alarm-link">
           <i className="bi bi-bell"></i>
+          {user && unreadCount > 0 ? (
+            <span className="alarm-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
+          ) : null}
         </Link>
       </div>
     </div>
