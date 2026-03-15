@@ -1,4 +1,5 @@
 import LanguageSettingsClient from "@/app/components/settings/LanguageSettingsClient";
+import PrivacySecuritySettingsClient from "@/app/components/settings/PrivacySecuritySettingsClient";
 import SettingsDetailClient from "@/app/components/settings/SettingsDetailClient";
 import { isSettingsMenuSlug } from "@/app/components/settings/settingsMenu";
 import { notFound } from "next/navigation";
@@ -20,6 +21,10 @@ export default async function SettingsDetailPage({
 
   if (slug === "language") {
     return <LanguageSettingsClient />;
+  }
+
+  if (slug === "privacy-security") {
+    return <PrivacySecuritySettingsClient />;
   }
 
   return <SettingsDetailClient slug={slug} />;

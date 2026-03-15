@@ -10,6 +10,8 @@ const Api = {
     http.post("emails/verify", { loginId, code }),
   login: (data: LoginDTO) => http.post("member/login", data),
   me: () => http.get("member/me"),
+  updatePrivacySettings: (data: { isPrivateProfile: boolean; isLocationVisible: boolean }) =>
+    http.put("member/privacy-settings", data),
   getBoardList: (page: number, size: number) =>
     http.get("boards/list", {
       params: { page, size },
@@ -60,6 +62,14 @@ const Api = {
     http.get(`follows/members/${memberId}/following`, {
       params: { page, size },
     }),
+  getIncomingFollowRequests: (page: number, size: number) =>
+    http.get("follows/requests/incoming", {
+      params: { page, size },
+    }),
+  respondToFollowRequest: (
+    requesterMemberId: number,
+    action: "VISIBLE_ONLY" | "FOLLOWING" | "REJECTED",
+  ) => http.post(`follows/${requesterMemberId}/respond`, { action }),
   getMyPageComments: (page: number, size: number) =>
     http.get("my-page/comments", {
       params: { page, size },

@@ -12,6 +12,7 @@ export type FollowMemberItem = {
   isFollowing: boolean;
   isFollowedBy: boolean;
   isMutualFollow: boolean;
+  hasPendingFollowRequest?: boolean;
 };
 
 export default function FollowListSection({
@@ -20,12 +21,16 @@ export default function FollowListSection({
   onOpenProfile,
   currentUserId,
   onToggleFollow,
+  showRequestActions = false,
+  onApproveRequest,
 }: {
   items: FollowMemberItem[];
   emptyMessage: string;
   onOpenProfile: (memberId: number) => void;
   currentUserId: number | null;
   onToggleFollow: (item: FollowMemberItem) => Promise<void>;
+  showRequestActions?: boolean;
+  onApproveRequest?: (item: FollowMemberItem) => Promise<void>;
 }) {
   const [pendingIds, setPendingIds] = useState<number[]>([]);
 
@@ -35,17 +40,20 @@ export default function FollowListSection({
 
   const isPending = (memberId: number) => pendingIds.includes(memberId);
 
-  const handleToggleFollow = async (item: FollowMemberItem) => {
-    if (isPending(item.memberIdx)) {
+  const runWithPending = async (
+    memberId: number,
+    action: () => Promise<void>,
+  ) => {
+    if (isPending(memberId)) {
       return;
     }
 
-    setPendingIds((prev) => [...prev, item.memberIdx]);
+    setPendingIds((prev) => [...prev, memberId]);
 
     try {
-      await onToggleFollow(item);
+      await action();
     } finally {
-      setPendingIds((prev) => prev.filter((memberId) => memberId !== item.memberIdx));
+      setPendingIds((prev) => prev.filter((id) => id !== memberId));
     }
   };
 
@@ -53,6 +61,11 @@ export default function FollowListSection({
     <div className="mypage-follow-list">
       {items.map((item) => {
         const showAction = currentUserId !== null && currentUserId !== item.memberIdx;
+        const showPendingRequestActions =
+          showRequestActions &&
+          item.isFollowedBy &&
+          item.hasPendingFollowRequest &&
+          typeof onApproveRequest === "function";
 
         return (
           <div key={item.memberIdx} className="mypage-follow-item">
@@ -81,14 +94,35 @@ export default function FollowListSection({
                 <span className="mypage-follow-badge is-soft">나를 팔로우하고있음</span>
               ) : null}
 
+              {showPendingRequestActions ? (
+                <button
+                  type="button"
+                  className="mypage-follow-toggle"
+                  onClick={() =>
+                    void runWithPending(item.memberIdx, () => onApproveRequest(item))
+                  }
+                  disabled={isPending(item.memberIdx)}
+                >
+                  요청
+                </button>
+              ) : null}
+
               {showAction ? (
                 <button
                   type="button"
                   className={`mypage-follow-toggle ${item.isFollowing ? "is-active" : ""}`}
-                  onClick={() => void handleToggleFollow(item)}
+                  onClick={() =>
+                    void runWithPending(item.memberIdx, () => onToggleFollow(item))
+                  }
                   disabled={isPending(item.memberIdx)}
                 >
-                  {item.isFollowing ? "팔로잉" : "팔로우"}
+                  {item.isFollowing
+                    ? "팔로잉"
+                    : item.isFollowedBy
+                      ? "맞팔로우"
+                      : item.hasPendingFollowRequest
+                        ? "요청됨"
+                      : "맞팔로우"}
                 </button>
               ) : null}
             </div>

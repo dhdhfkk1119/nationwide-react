@@ -33,6 +33,7 @@ type BoardListItem = {
   isFollowingAuthor?: boolean;
   isFollowedByAuthor?: boolean;
   isMutualFollow?: boolean;
+  hasPendingFollowRequest?: boolean;
   imageFileId?: string[];
   imagePath?: string[];
 };
@@ -59,6 +60,7 @@ type FeedPost = {
   isFollowingAuthor: boolean;
   isFollowedByAuthor: boolean;
   isMutualFollow: boolean;
+  hasPendingFollowRequest: boolean;
   imageFileIds: string[];
   imageUrls: string[];
 };
@@ -111,6 +113,7 @@ const toFeedPost = (item: BoardListItem): FeedPost => {
     isFollowingAuthor: relation.isFollowingAuthor,
     isFollowedByAuthor: relation.isFollowedByAuthor,
     isMutualFollow: relation.isMutualFollow,
+    hasPendingFollowRequest: Boolean(relation.hasPendingFollowRequest),
     imageFileIds: item.imageFileId ?? [],
     imageUrls: (item.imagePath ?? [])
       .map((imagePath) => toPublicImageUrl(imagePath, ""))
@@ -284,6 +287,7 @@ export default function Main() {
         isFollowingAuthor: boolean;
         isFollowedByAuthor: boolean;
         isMutualFollow: boolean;
+        hasPendingFollowRequest?: boolean;
       },
     ) => {
       setPosts((prev) =>
@@ -295,6 +299,7 @@ export default function Main() {
                 isFollowingAuthor: nextState.isFollowingAuthor,
                 isFollowedByAuthor: nextState.isFollowedByAuthor,
                 isMutualFollow: nextState.isMutualFollow,
+                hasPendingFollowRequest: Boolean(nextState.hasPendingFollowRequest),
               },
         ),
       );
@@ -338,6 +343,7 @@ export default function Main() {
           isFollowingAuthor: nextState.isFollowing,
           isFollowedByAuthor: nextState.isFollowedBy,
           isMutualFollow: nextState.isMutualFollow,
+          hasPendingFollowRequest: Boolean(nextState.hasPendingFollowRequest),
         });
       } catch (error) {
         console.error("팔로우 처리 실패:", error);
@@ -682,7 +688,8 @@ export default function Main() {
                       </button>
                       {currentUserId !== null &&
                         currentUserId !== post.memberIdx &&
-                        !post.isFollowingAuthor && (
+                        !post.isFollowingAuthor &&
+                        !post.hasPendingFollowRequest && (
                         <button
                           className="follow-plus-btn"
                           type="button"

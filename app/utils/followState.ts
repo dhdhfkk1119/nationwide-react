@@ -28,12 +28,20 @@ export const normalizeFollowStatus = <T>(value: T) => {
     "isMutualFollow",
     "mutualFollow",
   ]);
+  const hasPendingFollowRequest = readBoolean(source, [
+    "hasPendingRequest",
+    "pendingRequest",
+    "hasPendingFollowRequest",
+  ]);
+  const canViewProfile = readBoolean(source, ["canViewProfile"]);
 
   return {
     ...(source as T & RecordLike),
     isFollowing,
     isFollowedBy,
     isMutualFollow,
+    hasPendingFollowRequest,
+    canViewProfile,
   };
 };
 
@@ -57,11 +65,17 @@ export const normalizeAuthorFollowStatus = <T>(value: T) => {
     "isMutualFollow",
     "mutualFollow",
   ]);
+  const hasPendingFollowRequest = readBoolean(source, [
+    "hasPendingRequest",
+    "pendingRequest",
+    "hasPendingFollowRequest",
+  ]);
 
   return {
     ...(source as T & RecordLike),
     isFollowingAuthor,
     isFollowedByAuthor,
     isMutualFollow,
+    hasPendingFollowRequest,
   };
 };

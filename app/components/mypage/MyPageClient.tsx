@@ -53,6 +53,7 @@ type MyPageSummary = {
   boardCnt: number;
   followerCnt: number;
   followingCnt: number;
+  isPrivateProfile?: boolean;
 };
 
 type MyCommentItem = {
@@ -778,11 +779,13 @@ export default function MyPageClient() {
       const slice = (res.data?.response ?? {
         content: [],
       }) as SliceResponse<FollowMemberItem>;
+      const normalizedItems = (slice.content ?? []).map(normalizeFollowStatus);
+
       setFollowerState((prev) => ({
         items:
           page === 0
-            ? (slice.content ?? []).map(normalizeFollowStatus)
-            : [...prev.items, ...(slice.content ?? []).map(normalizeFollowStatus)],
+            ? normalizedItems
+            : [...prev.items, ...normalizedItems],
         page,
         hasNext: normalizeHasNext(slice),
         loading: false,
@@ -965,9 +968,47 @@ export default function MyPageClient() {
         isFollowing: nextState.isFollowing,
         isFollowedBy: nextState.isFollowedBy,
         isMutualFollow: nextState.isMutualFollow,
+        hasPendingFollowRequest: Boolean(nextState.hasPendingFollowRequest),
       });
     },
     [syncFollowMember],
+  );
+
+  const onApproveFollowRequest = useCallback(
+    async (item: FollowMemberItem) => {
+      const result = await confirmSwal({
+        icon: "question",
+        title: "요청 처리",
+        html: "해당 유저에게 비공개 게시물을 공개 하시겠습니까?",
+        showCancelButton: true,
+        confirmButtonText: "수락",
+        cancelButtonText: "거절",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      if (result.isConfirmed) {
+        await memberApi.respondToFollowRequest(item.memberIdx, "VISIBLE_ONLY");
+      } else if (result.isDismissed) {
+        await memberApi.respondToFollowRequest(item.memberIdx, "REJECTED");
+        await showSwal("info", "요청이 거절 되었습니다.");
+      } else {
+        return;
+      }
+
+      setFollowerState((prev) => ({
+        ...prev,
+        items: prev.items.map((followItem) =>
+          followItem.memberIdx !== item.memberIdx
+            ? followItem
+            : {
+                ...followItem,
+                hasPendingFollowRequest: false,
+              },
+        ),
+      }));
+    },
+    [],
   );
 
   const onOpenImages = (images: string[], index: number) => {
@@ -1535,6 +1576,8 @@ export default function MyPageClient() {
                     onOpenProfile={onOpenProfile}
                     currentUserId={currentUserId}
                     onToggleFollow={onToggleFollowMember}
+                    showRequestActions={Boolean(summary?.isPrivateProfile)}
+                    onApproveRequest={onApproveFollowRequest}
                   />
                   {followerState.hasNext && (
                     <button

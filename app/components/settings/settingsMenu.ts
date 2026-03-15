@@ -1,5 +1,7 @@
 export const settingsMenuItems = [
   { slug: "blocked-users" },
+  { slug: "report-status" },
+  { slug: "privacy-security" },
   { slug: "location-distance" },
   { slug: "language" },
   { slug: "notifications-theme" },
