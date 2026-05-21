@@ -10,6 +10,7 @@ import FollowListSection, {
   type FollowMemberItem,
 } from "@/app/components/members/FollowListSection";
 import ImageViewer from "@/app/components/modal/ImageViewer";
+import openReportPrompt from "@/app/components/modal/openReportPrompt";
 import showSwal, { confirmSwal } from "@/app/components/modal/Swal";
 import { useHorizontalDragScroll } from "@/app/hooks/useHorizontalDragScroll";
 import { useAuth } from "@/app/providers/AuthProvider";
@@ -119,6 +120,29 @@ const IMAGE_SIZE = 300;
 const IMAGE_GAP = 10;
 const IMAGE_SCROLL_STEP = IMAGE_SIZE + IMAGE_GAP;
 const MAX_IMAGES = 5;
+
+const readErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object"
+  ) {
+    const response = (error as {
+      response?: {
+        data?: {
+          error?: {
+            message?: string;
+          };
+        };
+      };
+    }).response;
+
+    return response?.data?.error?.message ?? fallbackMessage;
+  }
+
+  return fallbackMessage;
+};
 
 const createPaginatedState = <T,>(): PaginatedState<T> => ({
   items: [],
@@ -260,7 +284,7 @@ function BoardListSection({
   onCancelEditBoard: () => void;
   onSaveBoardEdit: (boardId: number) => void;
   onDeleteBoard: (boardId: number) => void;
-  onReportBoard: () => void;
+  onReportBoard: (item: BoardListItem) => void;
 }) {
   if (items.length === 0) {
     return <p className="mypage-empty">{emptyMessage}</p>;
@@ -347,7 +371,7 @@ function BoardListSection({
                         </>
                       ) : (
                         <li>
-                          <button type="button" onClick={() => onReportBoard()}>
+                          <button type="button" onClick={() => onReportBoard(item)}>
                             신고
                           </button>
                         </li>
@@ -1318,6 +1342,39 @@ export default function MyPageClient() {
     await showSwal("info", "신고 기능은 아직 준비 중입니다.");
   }, [closeBoardMenus]);
 
+  void onReportBoard;
+
+  const onSubmitBoardReport = useCallback(
+    async (item: BoardListItem) => {
+      closeBoardMenus();
+
+      if (currentUserId === null) {
+        await showSwal("warning", "로그인 후 이용해 주세요.");
+        return;
+      }
+
+      const reporterComment = await openReportPrompt({
+        title: "게시물 신고",
+        targetLabel: "게시물 내용",
+        content: item.content || item.title || "",
+        imageUrls: (item.imagePath ?? []).map((imagePath) => toPublicImageUrl(imagePath)).filter(Boolean),
+      });
+
+      if (!reporterComment) {
+        return;
+      }
+
+      try {
+        await memberApi.reportBoard(item.id, reporterComment);
+        await showSwal("success", "게시물 신고가 접수되었습니다.");
+      } catch (error) {
+        console.error(error);
+        await showSwal("error", readErrorMessage(error, "게시물 신고에 실패했습니다."));
+      }
+    },
+    [closeBoardMenus, currentUserId],
+  );
+
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -1490,7 +1547,7 @@ export default function MyPageClient() {
                     onCancelEditBoard={resetEditingBoard}
                     onSaveBoardEdit={onSaveBoardEdit}
                     onDeleteBoard={onDeleteBoard}
-                    onReportBoard={onReportBoard}
+                    onReportBoard={onSubmitBoardReport}
                   />
                   {mainState.hasNext && (
                     <button
@@ -1551,7 +1608,7 @@ export default function MyPageClient() {
                     onCancelEditBoard={resetEditingBoard}
                     onSaveBoardEdit={onSaveBoardEdit}
                     onDeleteBoard={onDeleteBoard}
-                    onReportBoard={onReportBoard}
+                    onReportBoard={onSubmitBoardReport}
                   />
                   {favoriteState.hasNext && (
                     <button

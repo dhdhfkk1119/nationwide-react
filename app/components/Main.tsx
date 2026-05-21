@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import CommunitySidebar from "@/app/components/community/CommunitySidebar";
 import ImageViewer from "@/app/components/modal/ImageViewer";
+import openReportPrompt from "@/app/components/modal/openReportPrompt";
 import showSwal, { confirmSwal } from "@/app/components/modal/Swal";
 import { useKeyedHorizontalDragScroll } from "@/app/hooks/useHorizontalDragScroll";
 import { useAuth } from "@/app/providers/AuthProvider";
@@ -16,6 +17,7 @@ import memberApi from "@/service/api";
 import "@/app/styles/main.css";
 
 type SortType = "latest" | "views" | "likes";
+type SearchTab = "posts" | "users";
 
 type BoardListItem = {
   id: number;
@@ -65,6 +67,14 @@ type FeedPost = {
   imageUrls: string[];
 };
 
+type SearchedMember = {
+  memberIdx: number;
+  name: string;
+  nickName?: string;
+  bio?: string;
+  thumbnailProfileImagePath?: string;
+};
+
 type EditingExistingImage = {
   id: string;
   url: string;
@@ -87,6 +97,29 @@ const IMAGE_SIZE = 300;
 const IMAGE_GAP = 10;
 const IMAGE_SCROLL_STEP = IMAGE_SIZE + IMAGE_GAP;
 const MAX_IMAGES = 5;
+
+const readErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object"
+  ) {
+    const response = (error as {
+      response?: {
+        data?: {
+          error?: {
+            message?: string;
+          };
+        };
+      };
+    }).response;
+
+    return response?.data?.error?.message ?? fallbackMessage;
+  }
+
+  return fallbackMessage;
+};
 
 const sortLabelMap: Record<SortType, string> = {
   latest: "최신순",
@@ -132,8 +165,12 @@ export default function Main() {
   }, [user]);
 
   const [query, setQuery] = useState("");
+  const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>("posts");
   const [sortType, setSortType] = useState<SortType>("latest");
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [searchedMembers, setSearchedMembers] = useState<SearchedMember[]>([]);
+  const [isSearchingMembers, setIsSearchingMembers] = useState(false);
+  const [memberSearchError, setMemberSearchError] = useState("");
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -322,6 +359,13 @@ export default function Main() {
       router.push(`/members/${memberIdx}`);
     },
     [currentUserId, router],
+  );
+
+  const onOpenSearchedMemberProfile = useCallback(
+    async (memberIdx: number) => {
+      await onOpenAuthorProfile(memberIdx);
+    },
+    [onOpenAuthorProfile],
   );
 
   const onFollowAuthor = useCallback(
@@ -519,6 +563,39 @@ export default function Main() {
     await showSwal("info", "신고 기능은 아직 준비 중입니다.");
   }, [closePostMenus]);
 
+  void onReportPost;
+
+  const onSubmitPostReport = useCallback(
+    async (post: FeedPost) => {
+      closePostMenus();
+
+      if (currentUserId === null) {
+        await showSwal("warning", "로그인 후 이용해 주세요.");
+        return;
+      }
+
+      const reporterComment = await openReportPrompt({
+        title: "게시물 신고",
+        targetLabel: "게시물 내용",
+        content: post.content || post.title || "",
+        imageUrls: post.imageUrls,
+      });
+
+      if (!reporterComment) {
+        return;
+      }
+
+      try {
+        await memberApi.reportBoard(post.id, reporterComment);
+        await showSwal("success", "게시물 신고가 접수되었습니다.");
+      } catch (error) {
+        console.error(error);
+        await showSwal("error", readErrorMessage(error, "게시물 신고에 실패했습니다."));
+      }
+    },
+    [closePostMenus, currentUserId],
+  );
+
   useEffect(() => {
     void fetchBoards(0);
   }, [fetchBoards]);
@@ -564,6 +641,51 @@ export default function Main() {
     };
   }, [clearEditingNewImages, editingNewImages]);
 
+  useEffect(() => {
+    if (activeSearchTab !== "users") {
+      setIsSearchingMembers(false);
+      setMemberSearchError("");
+      return;
+    }
+
+    const normalized = query.trim();
+    if (!normalized) {
+      setSearchedMembers([]);
+      setIsSearchingMembers(false);
+      setMemberSearchError("");
+      return;
+    }
+
+    let cancelled = false;
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        setIsSearchingMembers(true);
+        setMemberSearchError("");
+        const res = await memberApi.searchMembers(normalized);
+        if (cancelled) return;
+
+        const response = Array.isArray(res.data?.response)
+          ? (res.data.response as SearchedMember[])
+          : [];
+        setSearchedMembers(response);
+      } catch (error) {
+        if (cancelled) return;
+        console.error("사용자 검색 실패:", error);
+        setSearchedMembers([]);
+        setMemberSearchError("사용자 검색 결과를 불러오지 못했습니다.");
+      } finally {
+        if (!cancelled) {
+          setIsSearchingMembers(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [activeSearchTab, query]);
+
   const filteredPosts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     const searched = posts.filter((post) => {
@@ -591,6 +713,23 @@ export default function Main() {
           <p>근처 이웃들의 게시글을 확인하고 소통해보세요.</p>
 
           <div className="feed-filter-row">
+            <div className="feed-search-tabs" role="tablist" aria-label="검색 대상">
+              <button
+                type="button"
+                className={`feed-search-tab ${activeSearchTab === "posts" ? "is-active" : ""}`}
+                onClick={() => setActiveSearchTab("posts")}
+              >
+                게시물
+              </button>
+              <button
+                type="button"
+                className={`feed-search-tab ${activeSearchTab === "users" ? "is-active" : ""}`}
+                onClick={() => setActiveSearchTab("users")}
+              >
+                사용자
+              </button>
+            </div>
+
             <div className="feed-search-box">
               <i className="bi bi-search"></i>
               <input
@@ -645,6 +784,8 @@ export default function Main() {
           </div>
         </header>
 
+        {activeSearchTab === "posts" ? (
+        <>
         <div className="feed-list">
           {filteredPosts.map((post) => {
             const isEditing = editingPostId === post.id;
@@ -736,7 +877,7 @@ export default function Main() {
                         </>
                       ) : (
                         <li>
-                          <button type="button" onClick={() => void onReportPost()}>
+                          <button type="button" onClick={() => void onSubmitPostReport(post)}>
                             신고
                           </button>
                         </li>
@@ -895,6 +1036,45 @@ export default function Main() {
         {isLoading && <p className="feed-empty">게시글을 불러오는 중...</p>}
 
         <div ref={loadMoreRef} style={{ height: 1 }} />
+        </>
+        ) : (
+        <>
+          <div className="feed-list">
+            {searchedMembers.map((member) => (
+              <button
+                key={member.memberIdx}
+                type="button"
+                className="feed-user-card"
+                onClick={() => void onOpenSearchedMemberProfile(member.memberIdx)}
+              >
+                <img
+                  src={toProfileImageUrl(member.thumbnailProfileImagePath)}
+                  alt={`${member.nickName || member.name} profile`}
+                  className="feed-user-image"
+                />
+                <div className="feed-user-copy">
+                  <strong>{member.nickName || member.name}</strong>
+                  <span>{member.name}</span>
+                  {member.bio?.trim() ? <p>{member.bio.trim()}</p> : null}
+                </div>
+                <span className="feed-user-action">프로필 보기</span>
+              </button>
+            ))}
+          </div>
+
+          {!query.trim() && (
+            <p className="feed-empty">이름 또는 닉네임으로 사용자를 검색해 주세요.</p>
+          )}
+          {isSearchingMembers && <p className="feed-empty">사용자를 검색하는 중..</p>}
+          {memberSearchError && <p className="feed-empty">{memberSearchError}</p>}
+          {!isSearchingMembers &&
+            !memberSearchError &&
+            query.trim() &&
+            searchedMembers.length === 0 && (
+              <p className="feed-empty">검색된 사용자가 없습니다.</p>
+            )}
+        </>
+        )}
       </div>
 
       {viewerState && (

@@ -9,9 +9,24 @@ const Api = {
   veriftCode: (loginId: string, code: string) =>
     http.post("emails/verify", { loginId, code }),
   login: (data: LoginDTO) => http.post("member/login", data),
+  searchMembers: (query: string) =>
+    http.get("member/search", {
+      params: { query },
+    }),
   me: () => http.get("member/me"),
   updatePrivacySettings: (data: { isPrivateProfile: boolean; isLocationVisible: boolean }) =>
     http.put("member/privacy-settings", data),
+  deactivateMember: (durationMonths: number) =>
+    http.put("member/deactivate", { durationMonths }),
+  cancelDeactivation: () => http.put("member/deactivate/cancel"),
+  reportBoard: (boardId: number, reporterComment: string) =>
+    http.post(`reports/boards/${boardId}`, { reporterComment }),
+  reportComment: (commentId: number, reporterComment: string) =>
+    http.post(`reports/comments/${commentId}`, { reporterComment }),
+  getMyReports: (targetType?: "BOARD" | "COMMENT") =>
+    http.get("reports/me", {
+      params: targetType ? { targetType } : {},
+    }),
   getBoardList: (page: number, size: number) =>
     http.get("boards/list", {
       params: { page, size },

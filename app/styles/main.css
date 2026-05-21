@@ -136,7 +136,34 @@
   margin-top: 14px;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.feed-search-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid #e4deeb;
+  border-radius: 12px;
+  background: #fff8f4;
+}
+
+.feed-search-tab {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6f6a77;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.feed-search-tab.is-active {
+  background: #ffffff;
+  color: #ff5a3c;
+  box-shadow: 0 4px 14px rgba(24, 16, 38, 0.08);
 }
 
 .feed-search-box {
@@ -619,6 +646,68 @@
   font-size: 14px;
 }
 
+.feed-user-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #e6e2eb;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 16px;
+  box-shadow: 0 3px 14px rgba(24, 16, 38, 0.06);
+  text-align: left;
+}
+
+.feed-user-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid #ece7f2;
+  object-fit: cover;
+  background: #fff;
+}
+
+.feed-user-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feed-user-copy strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: #231a2e;
+}
+
+.feed-user-copy span {
+  font-size: 13px;
+  color: #7a7485;
+}
+
+.feed-user-copy p {
+  margin: 0;
+  color: #40384c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.feed-user-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #fff2ed;
+  color: #ff5a3c;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 @media (max-width: 920px) {
   .main-page {
     grid-template-columns: 1fr;
@@ -651,6 +740,15 @@
     align-items: stretch;
   }
 
+  .feed-search-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .feed-search-tab {
+    flex: 1;
+  }
+
   .feed-sort-dropdown {
     width: 100%;
   }
@@ -658,5 +756,14 @@
   .feed-sort-menu {
     right: auto;
     left: 0;
+  }
+
+  .feed-user-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .feed-user-action {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 }

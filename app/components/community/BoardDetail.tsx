@@ -2,9 +2,10 @@
 
 import "@/app/styles/board-detail.css";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import CommunitySidebar from "@/app/components/community/CommunitySidebar";
 import ImageViewer from "@/app/components/modal/ImageViewer";
+import openReportPrompt from "@/app/components/modal/openReportPrompt";
 import showSwal, { confirmSwal } from "@/app/components/modal/Swal";
 import { useHorizontalDragScroll } from "@/app/hooks/useHorizontalDragScroll";
 import { useAuth } from "@/app/providers/AuthProvider";
@@ -53,8 +54,32 @@ type BoardDetailResponse = {
 
 const normalizeLikeFlag = (value: unknown) => value === true || value === 1 || value === "true";
 
+const readErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object"
+  ) {
+    const response = (error as {
+      response?: {
+        data?: {
+          error?: {
+            message?: string;
+          };
+        };
+      };
+    }).response;
+
+    return response?.data?.error?.message ?? fallbackMessage;
+  }
+
+  return fallbackMessage;
+};
+
 export default function BoardDetail({ boardId }: { boardId: number }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const currentUserId =
     user && typeof user === "object"
@@ -73,6 +98,7 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
   const [viewerState, setViewerState] = useState<{ images: string[]; index: number } | null>(null);
   const [pendingCommentLikeIds, setPendingCommentLikeIds] = useState<number[]>([]);
   const [isTogglingBoardLike, setIsTogglingBoardLike] = useState(false);
+  const [highlightedCommentId, setHighlightedCommentId] = useState<number | null>(null);
   const {
     isDragging: isDraggingImages,
     movedDuringDragRef,
@@ -85,6 +111,13 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
   } = useHorizontalDragScroll();
 
   const comments = useMemo(() => detail?.commentSlice?.content ?? [], [detail]);
+  const targetHighlightCommentId = useMemo(() => {
+    const value = searchParams.get("highlightCommentId");
+    if (!value) return null;
+
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }, [searchParams]);
   const imageUrls = useMemo(
     () => (detail?.imagePath ?? []).map((imagePath) => toPublicImageUrl(imagePath, "")).filter(Boolean),
     [detail?.imagePath],
@@ -308,6 +341,76 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
     await showSwal("info", "신고 기능은 아직 준비 중입니다.");
   }, []);
 
+  void onReport;
+
+  const closeActionMenus = useCallback(() => {
+    document
+      .querySelectorAll<HTMLDetailsElement>(".board-detail-menu, .board-comment-menu")
+      .forEach((menu) => {
+        menu.removeAttribute("open");
+      });
+  }, []);
+
+  const onReportBoard = useCallback(async () => {
+    if (!detail) return;
+
+    closeActionMenus();
+
+    if (currentUserId === null) {
+      await showSwal("warning", "로그인 후 이용해 주세요.");
+      return;
+    }
+
+    const reporterComment = await openReportPrompt({
+      title: "게시물 신고",
+      targetLabel: "게시물 내용",
+      content: detail.content || detail.title || "",
+      imageUrls,
+    });
+
+    if (!reporterComment) {
+      return;
+    }
+
+    try {
+      await memberApi.reportBoard(detail.id, reporterComment);
+      await showSwal("success", "게시물 신고가 접수되었습니다.");
+    } catch (error) {
+      console.error(error);
+      await showSwal("error", readErrorMessage(error, "게시물 신고에 실패했습니다."));
+    }
+  }, [closeActionMenus, currentUserId, detail, imageUrls]);
+
+  const onReportComment = useCallback(
+    async (comment: BoardCommentItem) => {
+      closeActionMenus();
+
+      if (currentUserId === null) {
+        await showSwal("warning", "로그인 후 이용해 주세요.");
+        return;
+      }
+
+      const reporterComment = await openReportPrompt({
+        title: "댓글 신고",
+        targetLabel: "댓글 내용",
+        content: comment.content,
+      });
+
+      if (!reporterComment) {
+        return;
+      }
+
+      try {
+        await memberApi.reportComment(comment.boardCommentIdx, reporterComment);
+        await showSwal("success", "댓글 신고가 접수되었습니다.");
+      } catch (error) {
+        console.error(error);
+        await showSwal("error", readErrorMessage(error, "댓글 신고에 실패했습니다."));
+      }
+    },
+    [closeActionMenus, currentUserId],
+  );
+
   const onToggleActionMenu = useCallback((event: React.SyntheticEvent<HTMLDetailsElement>) => {
     const currentMenu = event.currentTarget;
     if (!currentMenu.open) return;
@@ -325,6 +428,36 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
     if (!user) return;
     fetchDetail();
   }, [fetchDetail, user]);
+
+  useEffect(() => {
+    if (targetHighlightCommentId === null) {
+      setHighlightedCommentId(null);
+      return;
+    }
+
+    if (!comments.some((comment) => comment.boardCommentIdx === targetHighlightCommentId)) {
+      return;
+    }
+
+    setHighlightedCommentId(targetHighlightCommentId);
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      document
+        .getElementById(`board-comment-${targetHighlightCommentId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    const timeoutId = window.setTimeout(() => {
+      setHighlightedCommentId((current) =>
+        current === targetHighlightCommentId ? null : current,
+      );
+    }, 2800);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [comments, targetHighlightCommentId]);
 
   const onSubmitComment = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -451,7 +584,7 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
                   </>
                 ) : (
                   <li>
-                    <button type="button" onClick={() => void onReport()}>
+                    <button type="button" onClick={() => void onReportBoard()}>
                       신고
                     </button>
                   </li>
@@ -546,7 +679,10 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
               comments.map((comment) => (
                 <article
                   key={comment.boardCommentIdx}
-                  className={`board-comment-item ${comment.isMine ? "is-mine" : ""}`}
+                  id={`board-comment-${comment.boardCommentIdx}`}
+                  className={`board-comment-item ${comment.isMine ? "is-mine" : ""} ${
+                    highlightedCommentId === comment.boardCommentIdx ? "is-highlighted" : ""
+                  }`}
                 >
                   <div className="board-comment-head">
                     <div className="board-comment-author">
@@ -558,6 +694,9 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
                       <div className="board-comment-author-meta">
                         <strong>{comment.nickName || comment.name}</strong>
                         <span>{comment.createdTime}</span>
+                        {highlightedCommentId === comment.boardCommentIdx ? (
+                          <span className="board-comment-highlight-badge">내가 신고한 댓글</span>
+                        ) : null}
                       </div>
                     </div>
                     <div className="board-comment-tools">
@@ -601,7 +740,7 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
                             </>
                           ) : (
                             <li>
-                              <button type="button" onClick={() => void onReport()}>
+                              <button type="button" onClick={() => void onReportComment(comment)}>
                                 신고
                               </button>
                             </li>
