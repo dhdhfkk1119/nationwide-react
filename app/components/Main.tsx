@@ -34,6 +34,7 @@ type BoardListItem = {
   isFollowedByAuthor?: boolean;
   isMutualFollow?: boolean;
   hasPendingFollowRequest?: boolean;
+  distanceKm?: number | null;
   imageFileId?: string[];
   imagePath?: string[];
 };
@@ -61,6 +62,7 @@ type FeedPost = {
   isFollowedByAuthor: boolean;
   isMutualFollow: boolean;
   hasPendingFollowRequest: boolean;
+  distanceKm: number | null;
   imageFileIds: string[];
   imageUrls: string[];
 };
@@ -114,6 +116,10 @@ const toFeedPost = (item: BoardListItem): FeedPost => {
     isFollowedByAuthor: relation.isFollowedByAuthor,
     isMutualFollow: relation.isMutualFollow,
     hasPendingFollowRequest: Boolean(relation.hasPendingFollowRequest),
+    distanceKm:
+      typeof item.distanceKm === "number" && Number.isFinite(item.distanceKm)
+        ? item.distanceKm
+        : null,
     imageFileIds: item.imageFileId ?? [],
     imageUrls: (item.imagePath ?? [])
       .map((imagePath) => toPublicImageUrl(imagePath, ""))
@@ -707,6 +713,11 @@ export default function Main() {
                         currentUserId !== post.memberIdx &&
                         post.isFollowedByAuthor ? (
                         <span className="feed-follow-status is-soft">나를 팔로우중</span>
+                      ) : null}
+                      {currentUserId !== null &&
+                      currentUserId !== post.memberIdx &&
+                      post.distanceKm !== null ? (
+                        <span className="feed-follow-status is-soft">{post.distanceKm}km</span>
                       ) : null}
                     </div>
                     <span className="feed-distance">{post.createdAt}</span>
