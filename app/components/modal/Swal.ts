@@ -3,6 +3,14 @@ import Swal, { type SweetAlertOptions } from "sweetalert2";
 
 type SwalType = "success" | "error" | "info" | "warning";
 
+const toSwalHtml = (message: string) =>
+  message
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("\n", "<br />");
+
 export default function showSwal(
   type: SwalType,
   message: string,
@@ -12,7 +20,7 @@ export default function showSwal(
   return Swal.fire({
     icon: type,
     title,
-    html: message,
+    html: toSwalHtml(message),
     confirmButtonText,
     customClass: {
       popup: "swal-bootstrap",

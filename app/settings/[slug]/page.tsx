@@ -1,5 +1,7 @@
+import DeactivateAccountSettingsClient from "@/app/components/settings/DeactivateAccountSettingsClient";
 import LanguageSettingsClient from "@/app/components/settings/LanguageSettingsClient";
 import PrivacySecuritySettingsClient from "@/app/components/settings/PrivacySecuritySettingsClient";
+import ReportStatusSettingsClient from "@/app/components/settings/ReportStatusSettingsClient";
 import SettingsDetailClient from "@/app/components/settings/SettingsDetailClient";
 import { isSettingsMenuSlug } from "@/app/components/settings/settingsMenu";
 import { notFound } from "next/navigation";
@@ -25,6 +27,14 @@ export default async function SettingsDetailPage({
 
   if (slug === "privacy-security") {
     return <PrivacySecuritySettingsClient />;
+  }
+
+  if (slug === "delete-account") {
+    return <DeactivateAccountSettingsClient />;
+  }
+
+  if (slug === "report-status") {
+    return <ReportStatusSettingsClient />;
   }
 
   return <SettingsDetailClient slug={slug} />;
