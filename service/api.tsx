@@ -14,8 +14,11 @@ const Api = {
       params: { query },
     }),
   me: () => http.get("member/me"),
-  updatePrivacySettings: (data: { isPrivateProfile: boolean; isLocationVisible: boolean }) =>
-    http.put("member/privacy-settings", data),
+  updatePrivacySettings: (data: {
+    isPrivateProfile: boolean;
+    isLocationVisible: boolean;
+    messagePermission?: "ALL" | "FOLLOWERS_ONLY" | "FOLLOWING_ONLY" | "BLOCK_ALL";
+  }) => http.put("member/privacy-settings", data),
   deactivateMember: (durationMonths: number) =>
     http.put("member/deactivate", { durationMonths }),
   cancelDeactivation: () => http.put("member/deactivate/cancel"),
@@ -23,9 +26,23 @@ const Api = {
     http.post(`reports/boards/${boardId}`, { reporterComment }),
   reportComment: (commentId: number, reporterComment: string) =>
     http.post(`reports/comments/${commentId}`, { reporterComment }),
-  getMyReports: (targetType?: "BOARD" | "COMMENT") =>
+  reportMember: (memberId: number, reporterComment: string) =>
+    http.post(`reports/members/${memberId}`, { reporterComment }),
+  getMyReports: (targetType?: "BOARD" | "COMMENT" | "MEMBER") =>
     http.get("reports/me", {
       params: targetType ? { targetType } : {},
+    }),
+  toggleBlock: (targetMemberId: number) =>
+    http.post(`blocks/${targetMemberId}/toggle`),
+  getBlockedUsers: (page: number, size: number) =>
+    http.get("blocks", {
+      params: { page, size },
+    }),
+  toggleHideMyPosts: (targetMemberId: number) =>
+    http.post(`post-hides/${targetMemberId}/toggle`),
+  getHiddenUsers: (page: number, size: number) =>
+    http.get("post-hides", {
+      params: { page, size },
     }),
   getBoardList: (page: number, size: number) =>
     http.get("boards/list", {
@@ -93,6 +110,39 @@ const Api = {
     http.get("my-page/favorite-boards", {
       params: { page, size },
     }),
+  updateCurrentLocation: (latitude: number, longitude: number) =>
+    http.put("member/current-location", { latitude, longitude }),
+  updateCurrentLocationManually: (
+    fullAddress: string,
+    address: string,
+    address1: string,
+    address2?: string,
+  ) =>
+    http.put("member/current-location/manual", {
+      fullAddress,
+      address,
+      address1,
+      address2,
+    }),
+  clearCurrentLocation: () => http.delete("member/current-location"),
+  getNearbyMembers: (radiusKm: number, page: number, size: number) =>
+    http.get("member/nearby", {
+      params: { radiusKm, page, size },
+    }),
+  getMessageThreads: (page: number, size: number) =>
+    http.get("messages/threads", {
+      params: { page, size },
+    }),
+  createOrGetThread: (targetMemberId: number) =>
+    http.post("messages/threads", { targetMemberId }),
+  getThreadMessages: (threadId: number, page: number, size: number) =>
+    http.get(`messages/threads/${threadId}/messages`, {
+      params: { page, size },
+    }),
+  markThreadRead: (threadId: number) =>
+    http.put(`messages/threads/${threadId}/read`),
+  deleteThread: (threadId: number) =>
+    http.delete(`messages/threads/${threadId}`),
   updateMember: (memberIdx: number, formData: FormData) =>
     http.put(`member/update/${memberIdx}`, formData, {
       headers: {

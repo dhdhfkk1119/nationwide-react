@@ -5,6 +5,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { AuthProvider } from "@/app/providers/AuthProvider";
 import { AlarmProvider } from "@/app/providers/AlarmProvider";
+import { DmProvider } from "@/app/providers/DmProvider";
 import Footer from "@/app/components/Footer";
 import Header from "@/app/components/Header";
 import { LocaleProvider } from "@/app/providers/LocaleProvider";
@@ -32,12 +33,14 @@ export default function RootLayout({
         <LocaleProvider>
           <AuthProvider>
             <AlarmProvider>
-              <div className="App">
-                <Header />
-                <main>{children}</main>
-                <ScrollTopButton />
-                <Footer />
-              </div>
+              <DmProvider>
+                <div className="App">
+                  <Header />
+                  <main>{children}</main>
+                  <ScrollTopButton />
+                  <Footer />
+                </div>
+              </DmProvider>
             </AlarmProvider>
           </AuthProvider>
         </LocaleProvider>

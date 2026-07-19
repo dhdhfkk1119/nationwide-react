@@ -15,6 +15,7 @@ interface User {
   id: number;
   name: string;
   nickName?: string;
+  displayName?: string;
   thumbnailProfileImagePath?: string;
   profileImagePath?: string[];
   isDeactivate?: boolean;

@@ -1,0 +1,55 @@
+.neighbors-custom-radius {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 20px;
+}
+
+.neighbors-custom-radius-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.neighbors-custom-radius input[type="number"] {
+  width: 120px;
+  border: 1px solid #ece7f2;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.neighbors-custom-radius-row span {
+  color: #7a7485;
+  font-weight: 600;
+}
+
+.neighbors-custom-radius-slider {
+  width: 100%;
+  max-width: 420px;
+  accent-color: #ff6e50;
+  cursor: pointer;
+}
+
+.neighbors-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.neighbors-message-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #ece7f2;
+  background: #ffffff;
+  color: #6f6a77;
+  font-size: 13px;
+}
+
+.neighbors-message-btn:hover {
+  background: #f5f5f5;
+}

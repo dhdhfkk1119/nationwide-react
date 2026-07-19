@@ -31,6 +31,15 @@ a {
   gap: 10px;
 }
 
+.userInfo-name {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 /* SelectBox 에 대한 반응형 */
 .responsive-select {
   width: 100%;

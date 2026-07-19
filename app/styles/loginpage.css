@@ -38,3 +38,79 @@
 .login-card .btn-primary:hover {
   filter: brightness(0.96);
 }
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin: 18px 0 14px;
+  color: #a79db3;
+  font-size: 12px;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e6e0ee;
+}
+
+.login-divider span {
+  padding: 0 10px;
+}
+
+.social-login-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-card .btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  min-height: 44px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.login-card .btn-kakao {
+  background: #fee500;
+  color: #191919;
+}
+
+.login-card .btn-kakao:hover {
+  filter: brightness(0.96);
+}
+
+.login-card .btn-naver {
+  background: #03c75a;
+  color: #ffffff;
+}
+
+.login-card .btn-naver:hover {
+  filter: brightness(0.96);
+}
+
+.btn-social-naver-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.login-card .btn-google {
+  background: #ffffff;
+  color: #3c4043;
+  border-color: #dadce0;
+}
+
+.login-card .btn-google:hover {
+  filter: brightness(0.97);
+}

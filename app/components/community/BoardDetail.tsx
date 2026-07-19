@@ -39,6 +39,7 @@ type BoardDetailResponse = {
   title: string;
   content: string;
   createdAt: string;
+  viewCnt: number;
   likeCnt: number;
   commentCnt: number;
   isLiked?: boolean;
@@ -657,6 +658,10 @@ export default function BoardDetail({ boardId }: { boardId: number }) {
               <i className="bi bi-chat"></i>
               <span>{detail.commentCnt}</span>
             </button>
+            <span className="board-detail-view-count">
+              <i className="bi bi-eye"></i>
+              <span>{detail.viewCnt}</span>
+            </span>
           </div>
 
           <form className="board-comment-form" onSubmit={onSubmitComment}>

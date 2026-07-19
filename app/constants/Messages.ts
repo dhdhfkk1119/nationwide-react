@@ -4,6 +4,7 @@ export const Messages = {
   LOGIN_ID_REQUIRED: "아이디를 입력해주세요.",
   PASSWORD_REQUIRED: "비밀번호를 입력해주세요.",
   LOGIN_FAIL: "로그인에 실패했습니다",
+  SOCIAL_LOGIN_PREPARING: "해당 소셜 로그인은 준비 중입니다.",
 
   // 회원 가입시
   SEND_EMAIL_CODE: "인증 코드가 전송 되었습니다.",

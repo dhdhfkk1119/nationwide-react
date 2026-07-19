@@ -11,11 +11,14 @@ import memberApi from "@/service/api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+type MessagePermission = "ALL" | "FOLLOWERS_ONLY" | "FOLLOWING_ONLY" | "BLOCK_ALL";
+
 type ViewerUser = {
   isPrivateProfile?: boolean;
   isLocationVisible?: boolean;
   privateProfile?: boolean;
   locationVisible?: boolean;
+  messagePermission?: MessagePermission;
 };
 
 const readPrivateProfile = (value: ViewerUser) =>
@@ -23,6 +26,16 @@ const readPrivateProfile = (value: ViewerUser) =>
 
 const readLocationVisible = (value: ViewerUser) =>
   value.isLocationVisible ?? value.locationVisible ?? true;
+
+const readMessagePermission = (value: ViewerUser): MessagePermission =>
+  value.messagePermission ?? "FOLLOWERS_ONLY";
+
+const MESSAGE_PERMISSION_OPTIONS: { value: MessagePermission; label: string }[] = [
+  { value: "ALL", label: "모든 유저 메시지 허용" },
+  { value: "FOLLOWERS_ONLY", label: "나를 팔로우한 유저만 메시지 허용" },
+  { value: "FOLLOWING_ONLY", label: "내가 팔로우한 유저만 메시지 허용" },
+  { value: "BLOCK_ALL", label: "모든 유저 메시지 차단" },
+];
 
 export default function PrivacySecuritySettingsClient() {
   const { user, loading, refreshUser } = useAuth();
@@ -32,23 +45,27 @@ export default function PrivacySecuritySettingsClient() {
 
   const [isPrivateProfile, setIsPrivateProfile] = useState(false);
   const [isLocationVisible, setIsLocationVisible] = useState(true);
+  const [messagePermission, setMessagePermission] = useState<MessagePermission>("FOLLOWERS_ONLY");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const currentUser = (user ?? {}) as ViewerUser;
     setIsPrivateProfile(readPrivateProfile(currentUser));
     setIsLocationVisible(readLocationVisible(currentUser));
+    setMessagePermission(readMessagePermission(currentUser));
   }, [user]);
 
   const onSave = async (
     nextPrivateProfile: boolean,
     nextLocationVisible: boolean,
+    nextMessagePermission: MessagePermission,
   ) => {
     try {
       setIsSaving(true);
       await memberApi.updatePrivacySettings({
         isPrivateProfile: nextPrivateProfile,
         isLocationVisible: nextLocationVisible,
+        messagePermission: nextMessagePermission,
       });
       await refreshUser();
     } catch (error) {
@@ -57,6 +74,7 @@ export default function PrivacySecuritySettingsClient() {
       const currentUser = (user ?? {}) as ViewerUser;
       setIsPrivateProfile(readPrivateProfile(currentUser));
       setIsLocationVisible(readLocationVisible(currentUser));
+      setMessagePermission(readMessagePermission(currentUser));
     } finally {
       setIsSaving(false);
     }
@@ -65,13 +83,18 @@ export default function PrivacySecuritySettingsClient() {
   const onTogglePrivateProfile = async () => {
     const nextPrivateProfile = !isPrivateProfile;
     setIsPrivateProfile(nextPrivateProfile);
-    await onSave(nextPrivateProfile, isLocationVisible);
+    await onSave(nextPrivateProfile, isLocationVisible, messagePermission);
   };
 
   const onToggleLocationVisible = async () => {
     const nextLocationVisible = !isLocationVisible;
     setIsLocationVisible(nextLocationVisible);
-    await onSave(isPrivateProfile, nextLocationVisible);
+    await onSave(isPrivateProfile, nextLocationVisible, messagePermission);
+  };
+
+  const onChangeMessagePermission = async (nextMessagePermission: MessagePermission) => {
+    setMessagePermission(nextMessagePermission);
+    await onSave(isPrivateProfile, isLocationVisible, nextMessagePermission);
   };
 
   return (
@@ -157,6 +180,27 @@ export default function PrivacySecuritySettingsClient() {
                       </span>
                     </button>
                   </article>
+                </div>
+
+                <div className="settings-section-copy">
+                  <strong>메시지 보안 설정</strong>
+                  <p>내 계정으로 메시지를 보낼 수 있는 사람의 범위를 설정합니다.</p>
+                </div>
+
+                <div className="settings-radio-list">
+                  {MESSAGE_PERMISSION_OPTIONS.map((option) => (
+                    <label key={option.value} className="settings-radio-option">
+                      <input
+                        type="radio"
+                        name="messagePermission"
+                        value={option.value}
+                        checked={messagePermission === option.value}
+                        onChange={() => void onChangeMessagePermission(option.value)}
+                        disabled={isSaving}
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             )}

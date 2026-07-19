@@ -61,7 +61,79 @@
   flex-wrap: wrap;
 }
 
-.mypage-profile-name-row h1,
+.member-profile-menu {
+  position: relative;
+}
+
+.member-profile-menu summary {
+  list-style: none;
+}
+
+.member-profile-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.member-profile-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #2f2638;
+  cursor: pointer;
+}
+
+.member-profile-menu-trigger:hover {
+  background: #f5f5f5;
+}
+
+.member-profile-menu-list {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  z-index: 10;
+  min-width: 160px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #ede7f4;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(24, 16, 38, 0.12);
+}
+
+.member-profile-menu-list li {
+  list-style: none;
+}
+
+.member-profile-menu-list li + li {
+  margin-top: 4px;
+}
+
+.member-profile-menu-list button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2f2638;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.member-profile-menu-list button:hover {
+  background: #fff1eb;
+}
+
+.mypage-profile-name-row h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #231a2e;
+}
+
 .mypage-edit-head h1 {
   margin: 0;
   font-size: 30px;
@@ -102,6 +174,25 @@
 .mypage-load-more:hover,
 .mypage-save-btn:hover,
 .mypage-edit-cancel:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(24, 16, 38, 0.12);
+}
+
+.member-profile-message-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ece7f2;
+  border-radius: 50%;
+  background: #fff;
+  color: #2f2638;
+  font-size: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.member-profile-message-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(24, 16, 38, 0.12);
 }

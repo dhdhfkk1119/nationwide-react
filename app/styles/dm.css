@@ -1,0 +1,167 @@
+.dm-shell {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 140px);
+  min-height: 480px;
+}
+
+.dm-conversation-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ece7f2;
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.dm-conversation-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0ecf4;
+}
+
+.dm-conversation-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.dm-empty-placeholder {
+  margin: 0;
+  padding: 24px 0 0;
+  text-align: center;
+  color: #7a7485;
+  font-weight: 700;
+}
+
+.dm-messages-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dm-message {
+  display: flex;
+}
+
+.dm-message span {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #f5f2fa;
+  color: #2f2638;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.dm-message.is-mine {
+  justify-content: flex-end;
+}
+
+.dm-message.is-mine span {
+  background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
+  color: #ffffff;
+}
+
+.dm-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+  border-top: 1px solid #f0ecf4;
+}
+
+.dm-input-row input {
+  flex: 1;
+  border: 1px solid #ece7f2;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.dm-input-row button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0 18px;
+  background: linear-gradient(90deg, #ff6e50 0%, #ff4f3f 100%);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.dm-input-row button:disabled {
+  opacity: 0.5;
+}
+
+.dm-thread-list-panel {
+  width: 320px;
+  border: 1px solid #ece7f2;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.dm-thread-list-panel h2 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  color: #2f2539;
+}
+
+.dm-thread-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.dm-thread-item:hover,
+.dm-thread-item.is-active {
+  background: #faf8fd;
+}
+
+.dm-thread-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.dm-thread-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.dm-thread-meta strong {
+  display: block;
+  color: #2f2539;
+  font-size: 14px;
+}
+
+.dm-thread-meta p {
+  margin: 2px 0 0;
+  color: #8b8296;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-thread-unread-badge {
+  flex-shrink: 0;
+}
+
+.dm-thread-menu {
+  flex-shrink: 0;
+}

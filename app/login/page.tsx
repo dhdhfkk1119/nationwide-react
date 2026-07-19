@@ -38,6 +38,14 @@ export default function LoginPage() {
     setForm((prev) => ({ ...prev, [name]: checked }));
   };
 
+  // API 흐름 (NAVER/KAKAO/GOOGLE 공통):
+  //   GET /api/{provider}/authorize -> Provider 인증 페이지로 리다이렉트
+  //   -> GET /api/{provider}/callback?code=...&state=... (Provider가 직접 호출)
+  //   -> 토큰 교환/회원 조회·가입 후 /login/{provider}/callback#accessToken=...&refreshToken=... 로 리다이렉트
+  const handleSocialLogin = (provider: "KAKAO" | "NAVER" | "GOOGLE") => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}${provider.toLowerCase()}/authorize`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,6 +114,39 @@ export default function LoginPage() {
             로그인
           </button>
         </form>
+
+        <div className="login-divider">
+          <span>또는</span>
+        </div>
+
+        <div className="social-login-group">
+          <button
+            type="button"
+            className="btn btn-social btn-kakao w-100"
+            onClick={() => handleSocialLogin("KAKAO")}
+          >
+            <i className="bi bi-chat-fill"></i>
+            카카오로 시작하기
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-social btn-naver w-100"
+            onClick={() => handleSocialLogin("NAVER")}
+          >
+            <span className="btn-social-naver-logo">N</span>
+            네이버로 시작하기
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-social btn-google w-100"
+            onClick={() => handleSocialLogin("GOOGLE")}
+          >
+            <i className="bi bi-google"></i>
+            구글로 시작하기
+          </button>
+        </div>
       </BaseCard>
     </div>
   );

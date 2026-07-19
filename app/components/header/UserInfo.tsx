@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAlarm } from "@/app/providers/AlarmProvider";
 import { toProfileImageUrl } from "@/app/utils/imageUrl";
+import { truncateNickname } from "@/app/utils/nickname";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { useLocale } from "@/app/providers/LocaleProvider";
 
@@ -33,7 +34,7 @@ export default function UserInfo() {
                 objectFit: "cover",
               }}
             />
-            <span>{user.name}</span>
+            <span className="userInfo-name">{truncateNickname(user.displayName ?? user.name)}</span>
           </Link>
 
           <button className="btn btn-link ms-2" onClick={logout}>

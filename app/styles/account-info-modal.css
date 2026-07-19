@@ -1,0 +1,65 @@
+.account-info-modal-content {
+  width: 360px;
+}
+
+.account-info-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 20px;
+}
+
+.account-info-modal-image {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ece7f2;
+}
+
+.account-info-modal-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-info-modal-name-row strong {
+  font-size: 17px;
+  color: #2f2539;
+}
+
+.account-info-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eaf6ff;
+  color: #1f8fe0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.account-info-modal-meta {
+  width: 100%;
+  margin: 8px 0 0;
+}
+
+.account-info-modal-meta > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid #f0ecf4;
+  font-size: 14px;
+}
+
+.account-info-modal-meta dt {
+  color: #8b8296;
+}
+
+.account-info-modal-meta dd {
+  margin: 0;
+  color: #3f364b;
+  font-weight: 600;
+}

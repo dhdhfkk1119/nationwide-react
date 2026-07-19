@@ -5,6 +5,7 @@ import { MouseEvent } from "react";
 import showSwal from "@/app/components/modal/Swal";
 import { useAlarm } from "@/app/providers/AlarmProvider";
 import { useAuth } from "@/app/providers/AuthProvider";
+import { useDm } from "@/app/providers/DmProvider";
 import { useLocale } from "@/app/providers/LocaleProvider";
 
 type CommunitySidebarProps = {
@@ -26,6 +27,7 @@ export default function CommunitySidebar({
   const { user } = useAuth();
   const { messages } = useLocale();
   const { unreadCount } = useAlarm();
+  const { unreadCount: unreadMessageCount } = useDm();
 
   const menuItems: MenuItem[] = [
     {
@@ -102,6 +104,11 @@ export default function CommunitySidebar({
                   {item.key === "notification" && user && unreadCount > 0 ? (
                     <span className="sidebar-notification-badge">
                       {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  ) : null}
+                  {item.key === "message" && user && unreadMessageCount > 0 ? (
+                    <span className="sidebar-notification-badge">
+                      {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
                     </span>
                   ) : null}
                 </span>

@@ -6,7 +6,9 @@ import CommunitySidebar from "@/app/components/community/CommunitySidebar";
 import FollowListSection, {
   type FollowMemberItem,
 } from "@/app/components/members/FollowListSection";
-import { confirmSwal } from "@/app/components/modal/Swal";
+import AccountInfoModal from "@/app/components/modal/AccountInfoModal";
+import openReportPrompt from "@/app/components/modal/openReportPrompt";
+import showSwal, { confirmSwal } from "@/app/components/modal/Swal";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { normalizeFollowStatus } from "@/app/utils/followState";
 import { toProfileImageUrl, toPublicImageUrl } from "@/app/utils/imageUrl";
@@ -30,6 +32,13 @@ type MemberSummary = {
   isMutualFollow: boolean;
   hasPendingFollowRequest?: boolean;
   canViewProfile?: boolean;
+  isBlocking?: boolean;
+  isBlockedByOther?: boolean;
+  isHidingFromOther?: boolean;
+  createdAt?: string;
+  location?: string;
+  isPhoneVerified?: boolean;
+  canMessage?: boolean;
 };
 
 type BoardListItem = {
@@ -98,6 +107,9 @@ export default function MemberProfileClient({ memberId }: { memberId: number }) 
     () => createPaginatedState<FollowMemberItem>(),
   );
   const [isTogglingFollow, setIsTogglingFollow] = useState(false);
+  const [isTogglingBlock, setIsTogglingBlock] = useState(false);
+  const [isTogglingHide, setIsTogglingHide] = useState(false);
+  const [showAccountInfo, setShowAccountInfo] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setSummaryLoading(true);
@@ -330,6 +342,105 @@ export default function MemberProfileClient({ memberId }: { memberId: number }) 
     }
   }, [fetchSummary, isTogglingFollow, memberId, summary]);
 
+  const onMessageUser = useCallback(async () => {
+    try {
+      await memberApi.createOrGetThread(memberId);
+      router.push(`/dm?target=${memberId}`);
+    } catch (error: any) {
+      showSwal(
+        "error",
+        error?.response?.data?.error?.message || "메시지를 보낼 수 없습니다.",
+      );
+    }
+  }, [memberId, router]);
+
+  const onToggleBlock = useCallback(async () => {
+    if (!summary || isTogglingBlock) return;
+
+    const willBlock = !summary.isBlocking;
+    const result = await confirmSwal({
+      icon: "warning",
+      title: willBlock ? "차단" : "차단 해제",
+      html: willBlock
+        ? "차단하시겠습니까? 차단하면 서로의 프로필과 게시물이 보이지 않게 됩니다."
+        : "차단을 해제하시겠습니까?",
+      showCancelButton: true,
+      confirmButtonText: "확인",
+      cancelButtonText: "취소",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setIsTogglingBlock(true);
+      // API: POST /api/blocks/{targetMemberId}/toggle -> 차단/차단 해제 토글
+      await memberApi.toggleBlock(memberId);
+
+      if (willBlock) {
+        await showSwal("success", "차단했습니다.");
+        router.push("/");
+        return;
+      }
+
+      await showSwal("success", "차단을 해제했습니다.");
+      await fetchSummary();
+    } catch (error: any) {
+      showSwal("error", error?.response?.data?.error?.message || "요청 처리에 실패했습니다.");
+    } finally {
+      setIsTogglingBlock(false);
+    }
+  }, [fetchSummary, isTogglingBlock, memberId, router, summary]);
+
+  const onToggleHide = useCallback(async () => {
+    if (!summary || isTogglingHide) return;
+
+    const willHide = !summary.isHidingFromOther;
+    const result = await confirmSwal({
+      icon: "question",
+      title: willHide ? "내 게시물 숨기기" : "게시물 숨기기 해제",
+      html: willHide
+        ? "이 사용자에게 내 게시물과 댓글을 숨기시겠습니까?"
+        : "게시물 숨기기를 해제하시겠습니까?",
+      showCancelButton: true,
+      confirmButtonText: "확인",
+      cancelButtonText: "취소",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setIsTogglingHide(true);
+      // API: POST /api/post-hides/{targetMemberId}/toggle -> 게시물 숨기기 토글
+      await memberApi.toggleHideMyPosts(memberId);
+      await showSwal("success", willHide ? "게시물을 숨겼습니다." : "게시물 숨기기를 해제했습니다.");
+      await fetchSummary();
+    } catch (error: any) {
+      showSwal("error", error?.response?.data?.error?.message || "요청 처리에 실패했습니다.");
+    } finally {
+      setIsTogglingHide(false);
+    }
+  }, [fetchSummary, isTogglingHide, memberId, summary]);
+
+  const onReportMember = useCallback(async () => {
+    if (!summary) return;
+
+    // API: POST /api/reports/members/{memberId} { reporterComment } -> 유저 신고 접수
+    const reporterComment = await openReportPrompt({
+      title: "유저 신고",
+      targetLabel: summary.nickName || summary.name,
+      content: summary.bio ?? "",
+    });
+
+    if (!reporterComment) return;
+
+    try {
+      await memberApi.reportMember(memberId, reporterComment);
+      await showSwal("success", "신고가 접수되었습니다.");
+    } catch (error: any) {
+      showSwal("error", error?.response?.data?.error?.message || "신고 접수에 실패했습니다.");
+    }
+  }, [memberId, summary]);
+
   const onToggleFollowMember = useCallback(
     async (item: FollowMemberItem) => {
       if (item.isFollowing) {
@@ -419,6 +530,19 @@ export default function MemberProfileClient({ memberId }: { memberId: number }) 
     );
   }
 
+  if (summary.isBlockedByOther) {
+    return (
+      <section className="main-page">
+        <CommunitySidebar activeMenuKey="profile" />
+        <div className="feed-area">
+          <section className="mypage-shell">
+            <p className="mypage-empty">차단된 사용자입니다.</p>
+          </section>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="main-page">
       <CommunitySidebar activeMenuKey="profile" />
@@ -462,6 +586,53 @@ export default function MemberProfileClient({ memberId }: { memberId: number }) 
                         ? "요청됨"
                         : "팔로우"}
                   </button>
+
+                  {summary.canMessage ? (
+                    <button
+                      type="button"
+                      className="member-profile-message-btn"
+                      aria-label="메시지 보내기"
+                      onClick={() => void onMessageUser()}
+                    >
+                      <i className="bi bi-chat-dots"></i>
+                    </button>
+                  ) : null}
+
+                  <details className="member-profile-menu">
+                    <summary className="member-profile-menu-trigger" aria-label="프로필 메뉴 열기">
+                      <i className="bi bi-three-dots"></i>
+                    </summary>
+                    <ul className="member-profile-menu-list">
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => void onToggleBlock()}
+                          disabled={isTogglingBlock}
+                        >
+                          {summary.isBlocking ? "차단 해제" : "차단"}
+                        </button>
+                      </li>
+                      <li>
+                        <button type="button" onClick={() => void onReportMember()}>
+                          신고
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => void onToggleHide()}
+                          disabled={isTogglingHide}
+                        >
+                          {summary.isHidingFromOther ? "게시물 숨기기 해제" : "내 게시물 숨기기"}
+                        </button>
+                      </li>
+                      <li>
+                        <button type="button" onClick={() => setShowAccountInfo(true)}>
+                          이 계정 정보
+                        </button>
+                      </li>
+                    </ul>
+                  </details>
                 </div>
               </div>
 
@@ -658,6 +829,10 @@ export default function MemberProfileClient({ memberId }: { memberId: number }) 
           )}
         </section>
       </div>
+
+      {showAccountInfo ? (
+        <AccountInfoModal summary={summary} onClose={() => setShowAccountInfo(false)} />
+      ) : null}
     </section>
   );
 }

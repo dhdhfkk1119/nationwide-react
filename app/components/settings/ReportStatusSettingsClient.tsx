@@ -12,7 +12,7 @@ import memberApi from "@/service/api";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-type ReportTab = "BOARD" | "COMMENT";
+type ReportTab = "BOARD" | "COMMENT" | "MEMBER";
 
 type ReportItem = {
   reportId: number;
@@ -96,6 +96,11 @@ export default function ReportStatusSettingsClient() {
 
   const onOpenReportTarget = useCallback(
     (report: ReportItem) => {
+      if (report.targetType === "MEMBER") {
+        router.push(`/members/${report.targetId}`);
+        return;
+      }
+
       const boardId = report.targetType === "BOARD" ? (report.boardId ?? report.targetId) : report.boardId;
       if (!boardId) return;
 
@@ -150,6 +155,13 @@ export default function ReportStatusSettingsClient() {
                   >
                     댓글 신고
                   </button>
+                  <button
+                    type="button"
+                    className={`feed-search-tab ${activeTab === "MEMBER" ? "is-active" : ""}`}
+                    onClick={() => setActiveTab("MEMBER")}
+                  >
+                    유저 신고
+                  </button>
                 </div>
 
                 <div className="settings-account-list">
@@ -179,7 +191,8 @@ export default function ReportStatusSettingsClient() {
                       >
                         <div className="settings-account-copy">
                           <strong>
-                            {activeTab === "BOARD" ? "게시물 신고" : "댓글 신고"} / {statusLabelMap[report.status]}
+                            {activeTab === "BOARD" ? "게시물 신고" : activeTab === "COMMENT" ? "댓글 신고" : "유저 신고"} /{" "}
+                            {statusLabelMap[report.status]}
                           </strong>
                           <p>{report.targetContent}</p>
                           <p>신고 내용: {report.reporterComment}</p>

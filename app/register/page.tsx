@@ -225,6 +225,7 @@ export default function RegisterPage() {
             type="text"
             name="nickName"
             placeholder="닉네임"
+            maxLength={18}
             onChange={handleChange}
           />
 

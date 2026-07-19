@@ -9,6 +9,8 @@ import { toProfileImageUrl } from "@/app/utils/imageUrl";
 import memberApi from "@/service/api";
 import "@/app/styles/mypage.css";
 
+const NICKNAME_MAX_LENGTH = 18;
+
 type MeResponse = {
   memberIdx: number;
   name: string;
@@ -83,6 +85,12 @@ export default function MyPageEditClient() {
     event.preventDefault();
     if (!profile || isSubmitting) return;
 
+    const trimmedNickName = nickName.trim();
+    if (trimmedNickName.length > NICKNAME_MAX_LENGTH) {
+      await showSwal("error", `닉네임은 최대 ${NICKNAME_MAX_LENGTH}자까지 입력할 수 있습니다.`);
+      return;
+    }
+
     const formData = new FormData();
     formData.append(
       "dto",
@@ -90,7 +98,7 @@ export default function MyPageEditClient() {
         [
           JSON.stringify({
             name: name.trim(),
-            nickName: nickName.trim(),
+            nickName: trimmedNickName,
             bio: bio.trim(),
             imageFileId: selectedImage ? [] : (profile.imageFilesId ?? []),
           }),
@@ -151,8 +159,18 @@ export default function MyPageEditClient() {
                 <span>닉네임</span>
                 <input
                   value={nickName}
-                  onChange={(event) => setNickName(event.target.value)}
-                  maxLength={30}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+                    if (nextValue.length > NICKNAME_MAX_LENGTH) {
+                      void showSwal(
+                        "error",
+                        `닉네임은 최대 ${NICKNAME_MAX_LENGTH}자까지 입력할 수 있습니다.`,
+                      );
+                      return;
+                    }
+                    setNickName(nextValue);
+                  }}
+                  maxLength={NICKNAME_MAX_LENGTH}
                 />
               </label>
 

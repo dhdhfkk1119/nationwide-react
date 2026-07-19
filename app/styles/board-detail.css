@@ -157,6 +157,15 @@
   background: #fff2f1;
 }
 
+.board-detail-view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: #8b8296;
+  font-size: 13px;
+}
+
 .board-comment-form {
   display: flex;
   flex-direction: column;
